@@ -1,0 +1,83 @@
+In order for you to match the answers for the MIMO detector test case, 
+please use the following definition of the QPSK constellation:
+
+(1+j) corresponds to bit1=0  bit2=0 
+(-1+j) corresponds to 0 1
+(-1-j) corresponds to 1 1
+(1-j) corresponds to 1 0
+
+This means that we set Es=2 (energy per symbol), and the noise level should be 
+calculated according to Equation (31) in Hochwald's paper 
+"Achieving near-capacity on a multiple-antenna channel". 
+
+Consider one transmission from two TX/RX antennas corresponding to
+four bits (two QPSK symbols): b0, b1, b2, b3.
+Assume that
+Eb/N0=2db (following the definition given in the paper)
+
+Mc=2 #QPSK
+Mt=2
+Nr=2
+Code_R=1/2  # Code Rate
+
+Es=4 # in linear
+## BE CAREFUL ##
+#Es here is total energy(not average energy per symbol) through Tx antenna
+#Es = (energy per symbol * Mt) = 2(=energy per symbol) * 2 (Tx antennas)
+
+EbN0=2 #in dB
+
+sigma2=(Es/2)*(Nr/(Code_R*Mt*Mc))*(10**(-EbN0/10))
+
+=================================
+======== Test Case 1 ============
+=================================
+H_channel =
+ [[ 0.5+1.1j  0.2-0.6j]
+ [-1.4+0.6j  0.2-1.j ]]
+received_seq = [-1.6-0.4j  2. -0.j ]
+
+Expected Output from MIMO Detector when La=[0, 0, 0, 0]
+Ld(LLR out): [-1.6331  5.7669 -1.3817  2.1775]
+Le(Extrinsic out): [-1.6331  5.7669 -1.3817  2.1775]
+
+
+Expected Output from MIMO Detector when La=[1.2, -0.5, -1.5, 2]
+Ld(LLR out): [-1.8527  6.3563 -2.2294  4.0943]
+Le(Extrinsic out): [-3.0527  6.8563 -0.7294  2.0943]
+
+
+=================================
+======== Test Case 2 ============
+=================================
+H_channel =
+ [[ 0.7-0.9j -0.5-1.1j]
+ [-0.6-0.5j -2.1+1.7j]]
+received_seq = [-1.4-0.5j -0.8-0.7j]
+
+Expected Output from MIMO Detector when La=[0, 0, 0, 0]
+Ld(LLR out): [ 0.1233  1.9977 -2.1467 -0.4744]
+Le(Extrinsic out): [ 0.1233  1.9977 -2.1467 -0.4744]
+
+
+Expected Output from MIMO Detector when La=[1.2, -0.5, -1.5, 2]
+Ld(LLR out): [ 3.0811  2.1408 -3.0847  2.2736]
+Le(Extrinsic out): [ 1.8811  2.6408 -1.5847  0.2736]
+
+
+=================================
+======== Test Case 3 ============
+================================= 
+H_channel =
+ [[ 0.1-0.7j -1.8-0.8j]
+ [-0.2+0.j   0.2+1.j ]]
+received_seq = [-0.7+0.j  -0.9+0.1j]
+
+Expected Output from MIMO Detector when La=[0, 0, 0, 0]
+Ld(LLR out): [-0.524   0.4518 -0.5082 -1.2077]
+Le(Extrinsic out): [-0.524   0.4518 -0.5082 -1.2077]
+
+
+Expected Output from MIMO Detector when La=[1.2, -0.5, -1.5, 2]
+Ld(LLR out): [ 2.2758  0.7255 -1.651   1.5938]
+Le(Extrinsic out): [ 1.0758  1.2255 -0.151  -0.4062]

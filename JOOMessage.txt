@@ -1,0 +1,34 @@
+Hi students,
+
+The course project code review will be from April 12th to April 18th.
+
+The project integrates a MIMO detector with either a Turbo decoder or an LDPC decoder.
+
+Two test set files are provided here. Test Set 1 is for the MIMO detector only, and Test Set 2 is designed for the Iterative MIMO-Turbo detector.
+
+The new component of the project is the MIMO detector.
+
+Since you already have a working Turbo decoder and an LDPC decoder is provided, Test Set 1 is intended to verify the functionality of your MIMO detector.
+
+If your MIMO detector performs well on Test Set 1, the next step is to integrate it with the Turbo or LDPC decoder.
+
+This integration is clearly explained in Professor Chen’s lecture. I strongly recommend watching the lecture videos carefully before implementing this part.
+
+Test Set 2 will help you evaluate the integration by testing the Iterative MIMO-Turbo detection.
+
+For the Code Review, you are required to submit the following four outputs:
+
+1. MIMO Detector Code Review Output
+Refer to the attached file ‘Course Project Code Review Input.txt’, apply the input to your MIMO detector (not the joint iterative MIMO-Turbo detector), and submit your results in the same format as Test Set 1.
+
+2. Joint Iterative MIMO-Turbo Detector Code Review Output
+Using the same input file ‘Course Project Code Review Input.txt’, apply the input to your Joint Iterative MIMO-Turbo detector and submit your results in the same format as Test Set 2.
+
+3. BER values of MIMO-Turbo
+Eb/No: 0, 1, 2, 2.4, 2.8, 3, 3.4
+
+4. BER values of MIMO-LDPC
+Eb/No: 0, 1, 2, 2.4, 2.8, 3, 3.4
+
+Best regards,
+Joo
