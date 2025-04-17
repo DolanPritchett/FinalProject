@@ -621,3 +621,74 @@ for i in range(num_iter):
     print(f'deinterleaved Soft-output L-values:\n{siso_out}')
     #print(f'deinterleaved Soft-output L-values:\n{np.round(siso_out,decimals=4)}')    
     print()
+
+# ...existing code...
+
+num_iter = 2  # Number of outer iterations
+
+if punc_en:
+    depunc_out = depuncturing(received_seq, code_block_len, num_pccc, punc_matrix)
+    received_seq = depunc_out
+
+Lc = 4 * EsN0  # Channel reliability factor
+
+# Reshape received sequence for turbo decoding
+received_seq_tmp = received_seq.reshape(code_block_len, -1)
+received_seq1 = received_seq_tmp[:, 0:2]
+intlevd_received_infobit = interleaver(intlv_pattern, received_seq_tmp[:, 0])
+received_seq2 = np.concatenate(
+    (np.expand_dims(intlevd_received_infobit, axis=1), np.expand_dims(received_seq_tmp[:, 2], axis=1)), axis=1
+)
+
+for outer_iter in range(num_iter):
+    print(f"=========================")
+    print(f"outer iteration number:{outer_iter + 1}")
+    print(f"=========================")
+
+    # MIMO Detection
+    Ld = np.zeros(Y.size * 2, dtype=float)
+    Le = np.zeros(Y.size * 2, dtype=float)
+    for i in range(len(H)):
+        matrix = H[i]
+        Recd = Y[i].reshape(-1, 1)
+        La = np.zeros(4, dtype=float) if outer_iter == 0 else deinterleavedLe[4 * i : 4 * i + 4]
+        Ld[4 * i : 4 * i + 4], Le[4 * i : 4 * i + 4] = compute_ld_le(matrix, Recd, La)
+
+    channel_interleaver_pattern = np.array([3, 8, 14, 1, 5, 4, 10, 9, 11, 16, 15, 12, 13, 6, 7, 2]) - 1
+    deinterleavedLd = de_interleaver(channel_interleaver_pattern, Ld)
+    deinterleavedLe = de_interleaver(channel_interleaver_pattern, Le)
+
+    print(f"MIMO detector output extrinsic LLR(de-interleaved, La2):\n{deinterleavedLe}")
+
+    # Turbo Decoding
+    for inner_iter in range(2):  # Two inner iterations
+        print(f"inner iteration number:{inner_iter + 1}")
+
+        ## Decoder 1 ##
+        if inner_iter == 0:
+            La = np.zeros(len(received_seq1))
+        else:
+            La_tmp = ext_llr
+            La = de_interleaver(intlv_pattern, La_tmp)
+
+        received_seq_input = received_seq1
+        llr, llr_parity, decod_seq, fsm_table, gamma_table, alpha_table, beta_table = BCJR_decoder2(
+            gen_poly, srcc_en, max_log_map_en, dec1_term_en, La, EsN0, received_seq_input
+        )
+        ext_llr = llr - La - Lc * received_seq_tmp[:, 0]
+        print(f"Extrinsic LLR ul from decoder1:\n{ext_llr}")
+        print(f"Extrinsic LLR pl from decoder1:\n{llr_parity}")
+
+        ## Decoder 2 ##
+        La_tmp = ext_llr
+        La = interleaver(intlv_pattern, La_tmp)
+
+        received_seq_input = received_seq2
+        llr, llr_parity, decod_seq, fsm_table, gamma_table, alpha_table, beta_table = BCJR_decoder2(
+            gen_poly, srcc_en, max_log_map_en, dec2_term_en, La, EsN0, received_seq_input
+        )
+        ext_llr = llr - La - Lc * intlevd_received_infobit
+        print(f"Turbo Decoder 2 Extrinsic LLR, after channel interleaving, to be passed into the MIMO detector:\n{ext_llr}")
+
+        siso_out = de_interleaver(intlv_pattern, llr)
+        print(f"full LLR from decoder2:\n{siso_out}")
