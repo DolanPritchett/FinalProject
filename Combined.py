@@ -1,5 +1,134 @@
 import numpy as np
 
+def compute_ld_le(H, Y, La):
+    M = 2
+    Mc = 2
+    R = 1 / 2
+    Es = 4
+    EbN0 = 2
+    sigma2 = (Es / 2) * (2 / (R * M * Mc)) * (10 ** (-EbN0 / 10))
+
+    num_sequences = 2 ** (M * Mc - 1)
+    num_bits = int(np.ceil(np.log2(num_sequences)))
+    ints = np.arange(num_sequences)
+    bit_sequences = ((ints[:, None] & (1 << np.arange(num_bits)[::-1])) > 0).astype(int)
+
+    Ld = np.zeros(M * Mc, dtype=float)
+    Le = np.zeros(M * Mc, dtype=float)
+
+    def maxStar(x, y):
+        x, y = float(x), float(y)
+        return max(x, y) + np.log1p(np.exp(-abs(x - y)))
+
+    def qpsk_mapping(bits):
+        if len(bits) % 2 != 0:
+            raise ValueError("Input bit array length must be even for QPSK mapping.")
+        bits = np.array(bits).reshape(-1, 2)
+        return np.array((1 - 2 * bits[:, 1]) + 1j * (1 - 2 * bits[:, 0]))
+
+    for k in range(M * Mc):
+        PlusSeq = np.zeros((num_sequences, M * Mc), dtype=int)
+        MinusSeq = np.zeros((num_sequences, M * Mc), dtype=int)
+        SPlus = np.zeros((num_sequences, M), dtype=complex)
+        SMinus = np.zeros((num_sequences, M), dtype=complex)
+
+        for i in range(num_sequences):
+            PlusSeq[i] = np.insert(bit_sequences[i], k, 1)
+            MinusSeq[i] = np.insert(bit_sequences[i], k, 0)
+            SPlus[i] = qpsk_mapping(PlusSeq[i])
+            SMinus[i] = qpsk_mapping(MinusSeq[i])
+
+        PlusAccum = -1 / (2 * sigma2) * np.linalg.norm(Y - H @ SPlus[0].reshape(-1, 1)) ** 2
+        MinusAccum = -1 / (2 * sigma2) * np.linalg.norm(Y - H @ SMinus[0].reshape(-1, 1)) ** 2
+
+        for j in range(M * Mc):
+            if j != k:
+                PlusAccum += 0.5 * -(1 - 2 * PlusSeq[0][j]) * La[j]
+                MinusAccum += 0.5 * -(1 - 2 * MinusSeq[0][j]) * La[j]
+
+        for i in range(1, num_sequences):
+            PlusSumAccum = 0
+            MinusSumAccum = 0
+            for j in range(M * Mc):
+                if j != k:
+                    PlusSumAccum += -(1 - 2 * PlusSeq[i][j]) * La[j]
+                    MinusSumAccum += -(1 - 2 * MinusSeq[i][j]) * La[j]
+            PlusAccum = maxStar(
+                PlusAccum,
+                -1 / (2 * sigma2) * np.linalg.norm(Y - H @ SPlus[i].reshape(-1, 1)) ** 2 + 0.5 * PlusSumAccum,
+            )
+            MinusAccum = maxStar(
+                MinusAccum,
+                -1 / (2 * sigma2) * np.linalg.norm(Y - H @ SMinus[i].reshape(-1, 1)) ** 2 + 0.5 * MinusSumAccum,
+            )
+
+        Ld[k] = La[k] + PlusAccum - MinusAccum
+        Le[k] = Ld[k] - La[k]
+
+    return Ld, Le
+
+# Example usage
+H = np.array([[0.5 + 1.1j, 0.2 - 0.6j], [-1.4 + 0.6j, 0.2 - 1.0j]])
+Y = np.array([-1.6 - 0.4j, 2.0 - 0.0j]).reshape(-1, 1)
+La = np.array([0,0,0,0], dtype=float)
+
+Ld, Le = compute_ld_le(H, Y, La)
+print("======== Test Case 1 ============")
+print("Expected Output from MIMO Detector when La=[0, 0, 0, 0]")
+print("Ld: ", Ld)
+print("Le: ", Le)
+
+La = np.array([1.2, -0.5, -1.5, 2], dtype=float)
+Ld, Le = compute_ld_le(H, Y, La)
+
+print("Expected Output from MIMO Detector when La=[1.2, -0.5, -1.5, 2]")
+print("Ld: ", Ld)
+print("Le: ", Le)
+
+H = np.array(
+ [[ 0.7-0.9j, -0.5-1.1j],
+ [-0.6-0.5j, -2.1+1.7j]])
+
+Y = np.array([-1.4-0.5j, -0.8-0.7j]).reshape(-1, 1)
+
+La = np.array([0,0,0,0], dtype=float)
+
+Ld, Le = compute_ld_le(H, Y, La)
+print("======== Test Case 2 ============")
+print("Expected Output from MIMO Detector when La=[0, 0, 0, 0]")
+print("Ld: ", Ld)
+print("Le: ", Le)
+
+La = np.array([1.2, -0.5, -1.5, 2], dtype=float)
+Ld, Le = compute_ld_le(H, Y, La)
+
+print("Expected Output from MIMO Detector when La=[1.2, -0.5, -1.5, 2]")
+print("Ld: ", Ld)
+print("Le: ", Le)
+
+H = np.array(
+ [[0.1-0.7j,-1.8-0.8j],
+ [-0.2+0j,0.2+1j]])
+
+Y = np.array([-0.7+0j,-0.9+0.1j]).reshape(-1, 1)
+
+La = np.array([0,0,0,0], dtype=float)
+
+Ld, Le = compute_ld_le(H, Y, La)
+print("======== Test Case 3 ============")
+print("Expected Output from MIMO Detector when La=[0, 0, 0, 0]")
+print("Ld: ", Ld)
+print("Le: ", Le)
+
+La = np.array([1.2, -0.5, -1.5, 2], dtype=float)
+Ld, Le = compute_ld_le(H, Y, La)
+
+print("Expected Output from MIMO Detector when La=[1.2, -0.5, -1.5, 2]")
+print("Ld: ", Ld)
+print("Le: ", Le)
+
+import numpy as np
+
 def BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,term_en,La,EsN0,received_seq):
 
     #Conversion of Binary to Python Integer List: '0b1101'=> [1,1,0,1]
@@ -342,17 +471,61 @@ def depuncturing(received_seq,code_block_len,num_pccc,punc_mat):
 ## Code Review Input 1 ##
 #########################
  #'''
+
+
+H = [
+    np.array([[1.8+1.5j, 0.4-0.2j],
+              [1.0+0.3j, 2.2-0.9j]]),
+
+    np.array([[1.9-2.6j, -1.0+0.7j],
+              [1.0+0.9j, -0.2-0.7j]]),
+
+    np.array([[-0.1+2.3j, 0.4-1.5j],
+              [0.1+0.0j, 1.5-0.2j]]),
+
+    np.array([[0.8+1.5j, 0.1+1.5j],
+              [0.4+0.2j, 0.3+0.4j]])
+]
+
+Y = np.array([
+    [-0.9-1.0j, -2.0-1.4j],
+    [-0.3-1.7j,  0.2+2.0j],
+    [ 1.2-0.5j,  1.2-0.4j],
+    [-0.4-1.3j, -0.3+0.8j]
+])
+
+
+Ld = np.zeros(Y.size*2, dtype=float)
+Le = np.zeros(Y.size*2, dtype=float)
+for i in range(len(H)):
+    matrix = H[i]
+    Recd = Y[i].reshape(-1, 1)
+    La = np.array([0,0,0,0], dtype=float)
+    Ld[4*i:4*i+4], Le[4*i:4*i+4] = compute_ld_le(matrix, Recd, La)
+
+#print("Ld", Ld)
+
+channel_interleaver_pattern = np.array([3, 8, 14, 1, 5, 4, 10, 9, 11, 16, 15, 12, 13, 6, 7, 2])
+channel_interleaver_pattern = channel_interleaver_pattern - 1
+deinterleavedLd = de_interleaver(channel_interleaver_pattern, Ld)
+deinterleavedLe = de_interleaver(channel_interleaver_pattern, Le)
+
+#print("deinterleaved Ld", deinterleavedLd)
+print("deinterleaved Le", deinterleavedLe)
+
 srcc_en=True
 max_log_map_en=False
 dec1_term_en=True
 dec2_term_en=False
 gen_poly=[0o7,0o5]
-intlv_pattern=np.array([12, 5, 9, 2, 10, 7, 1, 14, 6, 11, 3, 8, 4, 13])
+intlv_pattern=np.array([2,  1,  7, 5,  3,  6,  8,  4])
 intlv_pattern=intlv_pattern-1
 punc_matrix=np.array([[True, True],[True, False],[False,True]]).T
 punc_en=True
 num_pccc=2
 
+received_seq = deinterleavedLe
+"""
 received_seq=np.array([1.2, -0.8, -0.2, 1.5,\
      -0.3, -0.6, 1.1, 2.0, \
      2.5, 0.7, -0.2, 0.1, \
@@ -360,8 +533,8 @@ received_seq=np.array([1.2, -0.8, -0.2, 1.5,\
      -2, -0.25, 0.5, 0.4,\
      0.15, -1.5, 3, -0.9,\
      0.4, 2.2, -1.8, 1.4])
-
-code_block_len=14 #12(info)+2(term)
+"""
+code_block_len=8 #12(info)+2(term)
 
  #EsN0=EbN0-10log10(k)-10log10(R) in which k bits per symbol and R is code rate
  #EsN0=10**(-1/10) #-1dB, EbN0=2dB, 
@@ -369,37 +542,7 @@ EsN0=np.round(10**(-1/10),decimals=4) #-1dB, EbN0=2dB,
  #'''
 
 
-#########################
-## Code Review Input 2 ##
-#########################
-'''
-srcc_en=True
-max_log_map_en=False
-dec1_term_en=True
-dec2_term_en=False
-gen_poly=[0o37,0o21]
-intlv_pattern=np.array([5, 7, 16, 4, 1, 19, 10, 15, 3, 20, 12, 8, 14, 2, 17, 11, 18, 6, 13, 9])
-intlv_pattern=intlv_pattern-1
-punc_matrix=np.array([[True, True],[True, False],[False,True]]).T
-punc_en=True
-num_pccc=2
 
-received_seq=np.array([2, -0.5, 1, 0.9,\
-     1.2, -0.8, -1.0, -0.3,\
-    -0.5,  1.6, -0.8,  2.0,\
-    -0.9, -1.3,  0.6,  1.2,\
-    -1.6,  0.5, -1.4, -1.6,\
-     0.3,  1.6, -0.2,  2.5,\
-    -3.2,  2.0, -1.4,  0.7,\
-     2.2, -1.2,  2.0, -1.3,\
-     1.6, -0.4, -1.6,  1.8,\
-    -1.8, -2.5,  1.1, -2.0])
-
-code_block_len=20 #14(info)+6(term)
-
-#EsN0=EbN0-10log10(k)-10log10(R) in which k bits per symbol and R is code rate
-EsN0=10**(0/10) #0dB
-#'''
 
 num_iter=10
 
