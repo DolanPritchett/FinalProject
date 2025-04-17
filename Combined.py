@@ -66,7 +66,7 @@ def compute_ld_le(H, Y, La):
         Le[k] = Ld[k] - La[k]
 
     return Ld, Le
-
+"""
 # Example usage
 H = np.array([[0.5 + 1.1j, 0.2 - 0.6j], [-1.4 + 0.6j, 0.2 - 1.0j]])
 Y = np.array([-1.6 - 0.4j, 2.0 - 0.0j]).reshape(-1, 1)
@@ -126,7 +126,7 @@ Ld, Le = compute_ld_le(H, Y, La)
 print("Expected Output from MIMO Detector when La=[1.2, -0.5, -1.5, 2]")
 print("Ld: ", Ld)
 print("Le: ", Le)
-
+"""
 import numpy as np
 
 def BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,term_en,La,EsN0,received_seq):
@@ -349,36 +349,35 @@ def BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,term_en,La,EsN0,received_seq):
     beta_table=bcjr_beta_table_gen2(h,m,v,max_log_map_en,term_en,fsm_table,gamma_table)
 
     ## LLR Generation
-    llr=np.zeros(h+m)
-    for k in range(h+m):
-        positive_list=[]
-        negative_list=[]
+    llr_info = np.zeros(h + m)  # LLR for information bits
+    llr_parity = np.zeros(h + m)  # LLR for parity bits
+
+    for k in range(h + m):
+        positive_list_info = []
+        negative_list_info = []
+        positive_list_parity = []
+        negative_list_parity = []
+
         for i in range(2**v):
             for j in range(2**v):
-                if gamma_table[k][i][j]!='none' and fsm_table[i][j][0]==1:  #postive info bit
-                    #print(f'positive:{k,i,j}')
-                    positive_list.append(alpha_table[k][i]+gamma_table[k][i][j]+beta_table[k+1][j])
-                
-                if gamma_table[k][i][j]!='none' and fsm_table[i][j][0]==0:  #postive info bit
-                    #print(f'negative:{k,i,j}')
-                    negative_list.append(alpha_table[k][i]+gamma_table[k][i][j]+beta_table[k+1][j])
+                if gamma_table[k][i][j] != 'none':
+                    if fsm_table[i][j][0] == 1:  # Positive info bit
+                        positive_list_info.append(alpha_table[k][i] + gamma_table[k][i][j] + beta_table[k + 1][j])
+                    elif fsm_table[i][j][0] == 0:  # Negative info bit
+                        negative_list_info.append(alpha_table[k][i] + gamma_table[k][i][j] + beta_table[k + 1][j])
 
-        #print(f'time index:{k}')    
-        #print(f'positive list lenght:{len(positive_list)}') 
-        #print(f'negative list lenght:{len(negative_list)}') 
-        #print()
-        #if len(positive_list)==0:
-        #    llr[k]=-max_exp(negative_list)
-        #elif len(negative_list)==0:
-        #    llr[k]=max_exp(positive_list)
-        #else:
-        #    llr[k]=max_exp(positive_list)-max_exp(negative_list)
+                    if fsm_table[i][j][1] == 1:  # Positive parity bit
+                        positive_list_parity.append(alpha_table[k][i] + gamma_table[k][i][j] + beta_table[k + 1][j])
+                    elif fsm_table[i][j][1] == 0:  # Negative parity bit
+                        negative_list_parity.append(alpha_table[k][i] + gamma_table[k][i][j] + beta_table[k + 1][j])
 
-        llr[k]=max_exp(max_log_map_en,positive_list)-max_exp(max_log_map_en,negative_list)        
-        decod_seq=np.where(llr>0.0, 1, 0)
-    
-    #return llr,decod_seq
-    return llr,decod_seq, fsm_table, gamma_table, alpha_table, beta_table
+        llr_info[k] = max_exp(max_log_map_en, positive_list_info) - max_exp(max_log_map_en, negative_list_info)
+        llr_parity[k] = max_exp(max_log_map_en, positive_list_parity) - max_exp(max_log_map_en, negative_list_parity)
+
+    decod_seq = np.where(llr_info > 0.0, 1, 0)
+
+    # Return both LLR arrays
+    return llr_info, llr_parity, decod_seq, fsm_table, gamma_table, alpha_table, beta_table
 
 def interleaver(intlv_pattern,in_seq):    
     if len(intlv_pattern)!=len(in_seq):
@@ -538,13 +537,28 @@ code_block_len=8 #12(info)+2(term)
 
  #EsN0=EbN0-10log10(k)-10log10(R) in which k bits per symbol and R is code rate
  #EsN0=10**(-1/10) #-1dB, EbN0=2dB, 
-EsN0=np.round(10**(-1/10),decimals=4) #-1dB, EbN0=2dB, 
+#Eb/N0=2 db (following the definition given in the paper)
+
+Mc=2 #QPSK
+Mt=2
+Nr=2
+Code_R = 0.5
+
+Es=4 # in linear
+#Es here is total energy(not average energy per symbol) through Tx antenna
+#Es = (energy per symbol * Mt)
+EbN0=2 #in dB
+sigma2=(Es/2)*(Nr/(Code_R*Mt*Mc))*(10**(-EbN0/10))
+
+EsN0=EbN0-10*np.log10(Nr/(Code_R*Mt*Mc)) #in dB
+
+EsN0=np.round(10**(EsN0/10),decimals=4) #-1dB, EbN0=2dB, 
  #'''
 
 
 
 
-num_iter=10
+num_iter=2
 
 if punc_en==True:
     depunc_out=depuncturing(received_seq,code_block_len,num_pccc,punc_matrix)
@@ -556,7 +570,7 @@ Lc=4*EsN0
 received_seq_tmp=received_seq.reshape(code_block_len,-1)
 
 received_seq1=received_seq_tmp[:,0:2]
-
+print(f'received_seq1:\n{received_seq1}')
 intlevd_received_infobit=interleaver(intlv_pattern,received_seq_tmp[:,0])
 #received_seq2=np.concatenate((intlevd_received_infobit.reshape(info_block_len,1),received_seq_tmp[:,2].reshape(info_block_len,1)),axis=1)
 received_seq2=np.concatenate((np.expand_dims(intlevd_received_infobit, axis=1),np.expand_dims(received_seq_tmp[:,2], axis=1)),axis=1)
@@ -572,10 +586,11 @@ for i in range(num_iter):
         La=de_interleaver(intlv_pattern,La_tmp)
     #print(f'La to decoder1:{La}')
     received_seq_input=received_seq1
-    llr,decod_seq,fsm_table,gamma_table, alpha_table, beta_table=BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,dec1_term_en,La,EsN0,received_seq_input)
+    llr,llr_parity, decod_seq,fsm_table,gamma_table, alpha_table, beta_table=BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,dec1_term_en,La,EsN0,received_seq_input)
     ext_llr=llr-La-Lc*received_seq_tmp[:,0]    
     #print(f'Extrinsic LLR from decoder1:\n{np.round(ext_llr,decimals=4)}')
     print(f'Extrinsic LLR from decoder1:\n{ext_llr}')
+    print(f'LLr_parity from decoder1:\n{llr_parity}')
     #print(f'Extrinsic LLR from decoder1:\n{np.round(ext_llr,4)}')
     #print(f'Prior LLR for decoder 1:\n{La}')
     #print(f'Full LLR from decoder 1:\n{llr}')
@@ -588,10 +603,11 @@ for i in range(num_iter):
     
     #print(f'La to decoder2:{La}')
     received_seq_input=received_seq2
-    llr,decod_seq,fsm_table,gamma_table, alpha_table, beta_table=BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,dec2_term_en,La,EsN0,received_seq_input)
+    llr,llr_parity, decod_seq,fsm_table,gamma_table, alpha_table, beta_table=BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,dec2_term_en,La,EsN0,received_seq_input)
     ext_llr=llr-La-Lc*intlevd_received_infobit
     
     print(f'Extrinsic LLR from decoder2:\n{ext_llr}')
+    print(f'LLr_parity from decoder2:\n{llr_parity}')
     #print(f'Extrinsic LLR from decoder2:\n{np.round(ext_llr,4)}')
     #print(f'Prior LLR for decoder 2:\n{La}')
     #print(f'Full LLR from decoder 2:\n{llr}')
