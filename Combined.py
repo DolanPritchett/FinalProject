@@ -234,7 +234,8 @@ def BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,term_en,La,EsN0,received_seq):
             corr+=2*(code_vec[i]-0.5)*rx_vec[i]
         #Maximizing log-likelihood function is equivalent to finding 'maximum' path metric
         #cal_metric=2*(codeword[1]-0.5)*received_seq[0]+2*(codeword[2]-0.5)*received_seq[1]    
-        gamma=u_l2*(La/2)+(Lc/2)*(corr)
+        #gamma=u_l2*(La/2)+(Lc/2)*(corr)
+        gamma=u_l2*(La/2)+(corr)
 
         return gamma
 
