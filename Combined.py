@@ -564,7 +564,7 @@ if punc_en==True:
     depunc_out=depuncturing(received_seq,code_block_len,num_pccc,punc_matrix)
     received_seq=depunc_out
 
-Lc=4*EsN0
+Lc= 1 #4*EsN0
 
 #received_seq_tmp=received_seq.reshape(code_block_len,num_pccc+1)
 received_seq_tmp=received_seq.reshape(code_block_len,-1)
