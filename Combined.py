@@ -540,11 +540,11 @@ for i in range(num_iter):
     llr,llr_parity, decod_seq,fsm_table,gamma_table, alpha_table, beta_table=BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,dec1_term_en,La,EsN0,received_seq_input)
     #ext_llr=llr-La-Lc*received_seq_tmp[:,0]
     ext_llr=llr-La-received_seq_tmp[:,0]
-    ext_llr_parity=llr_parity-received_seq_tmp[:,1]  
+    Le1Pl1=llr_parity-received_seq_tmp[:,1]  
     #print(f'Extrinsic LLR from decoder1:\n{np.round(ext_llr,decimals=4)}')
     print(f'Extrinsic LLR from decoder1:\n{ext_llr}')
 
-    print(f'extrinsic_LLr_parity from decoder1:\n{ext_llr_parity}')
+    print(f'extrinsic_LLr_parity from decoder1:\n{Le1Pl1}')
     #print(f'Extrinsic LLR from decoder1:\n{np.round(ext_llr,4)}')
     #print(f'Prior LLR for decoder 1:\n{La}')
     #print(f'Full LLR from decoder 1:\n{llr}')
@@ -560,9 +560,13 @@ for i in range(num_iter):
     llr,llr_parity, decod_seq,fsm_table,gamma_table, alpha_table, beta_table=BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,dec2_term_en,La,EsN0,received_seq_input)
     #ext_llr=llr-La-Lc*intlevd_received_infobit
     ext_llr=llr-La-intlevd_received_infobit
-    
-    print(f'Extrinsic LLR from decoder2:\n{ext_llr}')
-    print(f'LLr_parity from decoder2:\n{llr_parity}')
+    Le12Ul = ext_llr
+    Le2Pl2=llr_parity-received_seq_tmp[:,2]
+    print(' Turbo decoder 2 llr(ul):',llr)
+    #print(f'Extrinsic LLR from decoder2:\n{ext_llr}')
+    print('llr_parity',llr_parity)
+    #print('received_seq_tmp[:,2]',received_seq_tmp[:,2])
+    #print(f'ext_LLr_parity from decoder2:\n{ext_llr_parity}')
     #print(f'Extrinsic LLR from decoder2:\n{np.round(ext_llr,4)}')
     #print(f'Prior LLR for decoder 2:\n{La}')
     #print(f'Full LLR from decoder 2:\n{llr}')
