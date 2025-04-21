@@ -525,15 +525,7 @@ punc_en=True
 num_pccc=2
 
 received_seq = deinterleavedLe
-"""
-received_seq=np.array([1.2, -0.8, -0.2, 1.5,\
-     -0.3, -0.6, 1.1, 2.0, \
-     2.5, 0.7, -0.2, 0.1, \
-     -1.6, -1.3, -0.4, 0.9,\
-     -2, -0.25, 0.5, 0.4,\
-     0.15, -1.5, 3, -0.9,\
-     0.4, 2.2, -1.8, 1.4])
-"""
+
 code_block_len=8 #12(info)+2(term)
 
  #EsN0=EbN0-10log10(k)-10log10(R) in which k bits per symbol and R is code rate
@@ -588,10 +580,13 @@ for i in range(num_iter):
     #print(f'La to decoder1:{La}')
     received_seq_input=received_seq1
     llr,llr_parity, decod_seq,fsm_table,gamma_table, alpha_table, beta_table=BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,dec1_term_en,La,EsN0,received_seq_input)
-    ext_llr=llr-La-Lc*received_seq_tmp[:,0]    
+    #ext_llr=llr-La-Lc*received_seq_tmp[:,0]
+    ext_llr=llr-La-received_seq_tmp[:,0]
+    ext_llr_parity=llr_parity-received_seq_tmp[:,1]  
     #print(f'Extrinsic LLR from decoder1:\n{np.round(ext_llr,decimals=4)}')
     print(f'Extrinsic LLR from decoder1:\n{ext_llr}')
-    print(f'LLr_parity from decoder1:\n{llr_parity}')
+
+    print(f'extrinsic_LLr_parity from decoder1:\n{ext_llr_parity}')
     #print(f'Extrinsic LLR from decoder1:\n{np.round(ext_llr,4)}')
     #print(f'Prior LLR for decoder 1:\n{La}')
     #print(f'Full LLR from decoder 1:\n{llr}')
