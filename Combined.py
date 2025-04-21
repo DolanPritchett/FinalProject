@@ -367,9 +367,9 @@ def BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,term_en,La,EsN0,received_seq):
                     elif fsm_table[i][j][0] == 0:  # Negative info bit
                         negative_list_info.append(alpha_table[k][i] + gamma_table[k][i][j] + beta_table[k + 1][j])
 
-                    if fsm_table[i][j][1] == 1:  # Positive parity bit
+                    if fsm_table[i][j][2] == 1:  # Positive parity bit
                         positive_list_parity.append(alpha_table[k][i] + gamma_table[k][i][j] + beta_table[k + 1][j])
-                    elif fsm_table[i][j][1] == 0:  # Negative parity bit
+                    elif fsm_table[i][j][2] == 0:  # Negative parity bit
                         negative_list_parity.append(alpha_table[k][i] + gamma_table[k][i][j] + beta_table[k + 1][j])
 
         llr_info[k] = max_exp(max_log_map_en, positive_list_info) - max_exp(max_log_map_en, negative_list_info)
@@ -429,48 +429,6 @@ def depuncturing(received_seq,code_block_len,num_pccc,punc_mat):
     
     return depunc_out
 
-######################################################
-#### Code Review Set Generation for Turbo Decoder ####
-######################################################
-# Turbo Decoder Test
-# received_seq: In the textbook example, received sequence is channel L values=Lc*r 
-# but, in this code, input is just r so if the received sequece is L value,
-# it has to be modified before feeding into the code
-# Lc: channel reliability factor= 4*(Es/N0)
-######################################################
-
-#########################
-##     Example 16.4    ##
-#########################
-# #'''
-# srcc_en=True
-# max_log_map_en=False
-# dec1_term_en=True
-# dec2_term_en=True
-# gen_poly=[0o3,0o2]
-# intlv_pattern=np.array([1,3,2,4])
-# intlv_pattern=intlv_pattern-1
-# punc_matrix=np.array([[True, True],[True, True],[True,True]]).T
-# punc_en=False
-# num_pccc=2
-
-# received_seq=np.array([0.8, 0.1, -1.2, 1.0, -0.5, 1.2, -1.8, 1.1, 0.2, 1.6, -1.6, -1.1])
-# code_block_len=4# 3(info)+1(term)
-
-# #EsN0=EbN0-10log10(k)-10log10(R) in which k bits per symbol and R is code rate
-# EsN0=1/4
-
-# #received_seq: In the textbook example, received sequence is channel L values=Lc*r 
-# #but, in this code, input is just r so if the received sequece is L value,
-# #it has to be modified before feeding into the code
-# Lc=4*EsN0
-# received_seq=(1/Lc)*received_seq  
-# #'''
-
-#########################
-## Code Review Input 1 ##
-#########################
- #'''
 
 
 H = [
@@ -600,7 +558,8 @@ for i in range(num_iter):
     #print(f'La to decoder2:{La}')
     received_seq_input=received_seq2
     llr,llr_parity, decod_seq,fsm_table,gamma_table, alpha_table, beta_table=BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,dec2_term_en,La,EsN0,received_seq_input)
-    ext_llr=llr-La-Lc*intlevd_received_infobit
+    #ext_llr=llr-La-Lc*intlevd_received_infobit
+    ext_llr=llr-La-intlevd_received_infobit
     
     print(f'Extrinsic LLR from decoder2:\n{ext_llr}')
     print(f'LLr_parity from decoder2:\n{llr_parity}')
