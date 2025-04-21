@@ -235,7 +235,7 @@ def BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,term_en,La,EsN0,received_seq):
         #Maximizing log-likelihood function is equivalent to finding 'maximum' path metric
         #cal_metric=2*(codeword[1]-0.5)*received_seq[0]+2*(codeword[2]-0.5)*received_seq[1]    
         #gamma=u_l2*(La/2)+(Lc/2)*(corr)
-        gamma=u_l2*(La/2)+(corr)
+        gamma=u_l2*(La/2)+(corr/2)
 
         return gamma
 
@@ -571,7 +571,7 @@ Lc= 4*EsN0
 received_seq_tmp=received_seq.reshape(code_block_len,-1)
 
 received_seq1=received_seq_tmp[:,0:2]
-print(f'received_seq1:\n{received_seq1}')
+#print(f'received_seq1:\n{received_seq1}')
 intlevd_received_infobit=interleaver(intlv_pattern,received_seq_tmp[:,0])
 #received_seq2=np.concatenate((intlevd_received_infobit.reshape(info_block_len,1),received_seq_tmp[:,2].reshape(info_block_len,1)),axis=1)
 received_seq2=np.concatenate((np.expand_dims(intlevd_received_infobit, axis=1),np.expand_dims(received_seq_tmp[:,2], axis=1)),axis=1)
