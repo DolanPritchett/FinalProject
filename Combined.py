@@ -429,7 +429,31 @@ def depuncturing(received_seq,code_block_len,num_pccc,punc_mat):
     
     return depunc_out
 
+def puncturing(systematic, parity1, parity2, punc_mat):
+    """
+    Punctures the input systematic, parity1, and parity2 arrays based on the puncturing matrix.
 
+    Args:
+        systematic (np.ndarray): The systematic bits array.
+        parity1 (np.ndarray): The parity 1 bits array.
+        parity2 (np.ndarray): The parity 2 bits array.
+        punc_mat (np.ndarray): The puncturing matrix.
+
+    Returns:
+        np.ndarray: The punctured output sequence.
+    """
+    punc_vec = punc_mat.flatten()
+    punctured_out = []
+
+    for i in range(len(systematic)):
+        if punc_vec[i % len(punc_vec)]:
+            punctured_out.append(systematic[i])
+        if punc_vec[(i + 1) % len(punc_vec)]:
+            punctured_out.append(parity1[i])
+        if punc_vec[(i + 2) % len(punc_vec)]:
+            punctured_out.append(parity2[i])
+
+    return np.array(punctured_out)
 
 H = [
     np.array([[1.8+1.5j, 0.4-0.2j],
@@ -544,7 +568,7 @@ for i in range(num_iter):
     #print(f'Extrinsic LLR from decoder1:\n{np.round(ext_llr,decimals=4)}')
     print(f'Extrinsic LLR from decoder1:\n{ext_llr}')
 
-    print(f'extrinsic_LLr_parity from decoder1:\n{Le1Pl1}')
+    print(f'eExtrinsic LLR pl from decoder1:\n{Le1Pl1}')
     #print(f'Extrinsic LLR from decoder1:\n{np.round(ext_llr,4)}')
     #print(f'Prior LLR for decoder 1:\n{La}')
     #print(f'Full LLR from decoder 1:\n{llr}')
@@ -560,11 +584,11 @@ for i in range(num_iter):
     llr,llr_parity, decod_seq,fsm_table,gamma_table, alpha_table, beta_table=BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,dec2_term_en,La,EsN0,received_seq_input)
     #ext_llr=llr-La-Lc*intlevd_received_infobit
     ext_llr=llr-La-intlevd_received_infobit
-    Le12Ul = ext_llr
+    Le12Ul = de_interleaver(intlv_pattern,ext_llr)
     Le2Pl2=llr_parity-received_seq_tmp[:,2]
     print(' Turbo decoder 2 llr(ul):',llr)
     #print(f'Extrinsic LLR from decoder2:\n{ext_llr}')
-    print('llr_parity',llr_parity)
+    print('Turbo Decoder 2 llr(pl)',llr_parity)
     #print('received_seq_tmp[:,2]',received_seq_tmp[:,2])
     #print(f'ext_LLr_parity from decoder2:\n{ext_llr_parity}')
     #print(f'Extrinsic LLR from decoder2:\n{np.round(ext_llr,4)}')
@@ -574,9 +598,14 @@ for i in range(num_iter):
     #fsm_gamma_alpha_beta_table_disp(gen_poly,fsm_table,gamma_table,alpha_table,beta_table)
 
     siso_out=de_interleaver(intlv_pattern,llr)
-    print(f'full LLR from decoder2:\n{llr}')
+    #print(f'full LLR from decoder2:\n{llr}')
     #print(f'full LLR from decoder2:\n{np.round(llr,4)}')
     #print(f'full LLR from decoder2:\n{np.round(llr,decimals=4)}')
-    print(f'deinterleaved Soft-output L-values:\n{siso_out}')
-    #print(f'deinterleaved Soft-output L-values:\n{np.round(siso_out,decimals=4)}')    
-    print()
+    #print(f'deinterleaved Soft-output L-values:\n{siso_out}')
+    #print(f'deinterleaved Soft-output L-values:\n{np.round(siso_out,decimals=4)}') 
+    print('Le12Ul:',Le12Ul)
+    print('Le1Pl1:',Le1Pl1)
+    print('Le2Pl2:',Le2Pl2)  
+    BeforeInterleaving = puncturing(Le12Ul, Le1Pl1, Le2Pl2, punc_matrix)
+    interleavedForMIMO = interleaver(channel_interleaver_pattern, BeforeInterleaving)
+    print(f'Turbo Decoder 2 Extrinsic LLR, after channel interleaving, to be passed into the MIMO detector:\n{interleavedForMIMO}')
