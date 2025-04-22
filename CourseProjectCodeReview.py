@@ -4,7 +4,7 @@ def compute_ld_le(H, Y, La):
     M = 2
     Mc = 2
     R = 1 / 2
-    Es = 2
+    Es = 4
     EbN0 = 2
     sigma2 = (Es / 2) * (2 / (R * M * Mc)) * (10 ** (-EbN0 / 10))
 
@@ -78,6 +78,19 @@ La = np.array([0,0,0,0], dtype=float)
 Ld, Le = compute_ld_le(H, Y, La)
 print("Course Project Code Review Input 1")
 print("Expected Output from MIMO Detector when La=[0, 0, 0, 0]")
+print("Ld: ", Ld)
+print("Le: ", Le)
+
+H = np.array(
+ [[ -0.9 + 2j, 0.2 + 2j],
+ [-0.3-1j, 2.5+0.5j]])
+
+Y = np.array([1+1.5j, 2-0.2j]).reshape(-1, 1)
+
+La = np.array([1.2, -0.5, -1.5, 2], dtype=float)
+
+Ld, Le = compute_ld_le(H, Y, La)
+print("Expected Output from MIMO Detector when La=[1.2, -0.5, -1.5, 2]")
 print("Ld: ", Ld)
 print("Le: ", Le)
 """
@@ -489,7 +502,7 @@ Ld = np.zeros(Y.size*2, dtype=float)
 Le = np.zeros(Y.size*2, dtype=float)
 interleavedForMIMO = np.zeros(Y.size*2, dtype=float)
 
-for outer_iter in range(1):  # Outer loop iterates 2 times
+for outer_iter in range(2):  # Outer loop iterates 2 times
     print(f"Outer iteration {outer_iter + 1}\n")
     for i in range(len(H)):
         matrix = H[i]
@@ -627,3 +640,4 @@ for outer_iter in range(1):  # Outer loop iterates 2 times
         interleavedForMIMO = interleaver(channel_interleaver_pattern, BeforeInterleaving)
         print(f'Turbo Decoder 2 Extrinsic LLR, after channel interleaving, to be passed into the MIMO detector:\n{np.round(interleavedForMIMO, 4)}')
 
+print('Final soft LLR out of decoder 2, after outer and inner iterations:',siso_out)
