@@ -483,8 +483,8 @@ Le = np.zeros(Y.size*2, dtype=float)
 for i in range(len(H)):
     matrix = H[i]
     Recd = Y[i].reshape(-1, 1)
-    La = np.array([0,0,0,0], dtype=float)
-    Ld[4*i:4*i+4], Le[4*i:4*i+4] = compute_ld_le(matrix, Recd, La)
+    La = np.zeros(Y.size*2, dtype=float)
+    Ld[4*i:4*i+4], Le[4*i:4*i+4] = compute_ld_le(matrix, Recd, La[4*i:4*i+4])
 
 #print("Ld", Ld)
 
