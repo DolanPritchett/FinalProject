@@ -551,7 +551,7 @@ intlevd_received_infobit=interleaver(intlv_pattern,received_seq_tmp[:,0])
 received_seq2=np.concatenate((np.expand_dims(intlevd_received_infobit, axis=1),np.expand_dims(received_seq_tmp[:,2], axis=1)),axis=1)
 
 for i in range(num_iter):
-    print(f'iteration number:{i+1}')
+    print(f'\niteration number:{i+1}\n')
 
     ## Decoder 1 ##    
     if i==0:
@@ -566,9 +566,9 @@ for i in range(num_iter):
     ext_llr=llr-La-received_seq_tmp[:,0]
     Le1Pl1=llr_parity-received_seq_tmp[:,1]  
     #print(f'Extrinsic LLR from decoder1:\n{np.round(ext_llr,decimals=4)}')
-    print(f'Extrinsic LLR ul from decoder1:\n{ext_llr}')
+    print(f'Extrinsic LLR ul from decoder1:\n{np.round(ext_llr,4)}')
 
-    print(f'Extrinsic LLR pl from decoder1:\n{Le1Pl1}')
+    print(f'Extrinsic LLR pl from decoder1:\n{np.round(Le1Pl1,4)}')
     #print(f'Extrinsic LLR from decoder1:\n{np.round(ext_llr,4)}')
     #print(f'Prior LLR for decoder 1:\n{La}')
     #print(f'Full LLR from decoder 1:\n{llr}')
@@ -584,11 +584,13 @@ for i in range(num_iter):
     llr,llr_parity, decod_seq,fsm_table,gamma_table, alpha_table, beta_table=BCJR_decoder2(gen_poly,srcc_en,max_log_map_en,dec2_term_en,La,EsN0,received_seq_input)
     #ext_llr=llr-La-Lc*intlevd_received_infobit
     ext_llr=llr-La-intlevd_received_infobit
-    Le12Ul = de_interleaver(intlv_pattern,ext_llr)
+    Le12Ul = de_interleaver(intlv_pattern,llr-La)
     Le2Pl2=llr_parity-received_seq_tmp[:,2]
-    print(' Turbo decoder 2 llr(ul):',llr)
-    #print(f'Extrinsic LLR from decoder2:\n{ext_llr}')
-    print('Turbo Decoder 2 llr(pl):',llr_parity)
+    print(' Turbo decoder 2 llr(ul):\n', np.round(llr, 4))
+    
+    print('Turbo Decoder 2 llr(pl):\n', np.round(llr_parity, 4))
+    print(f'Turbo Decoder 2 ext_llr_ul2:\n{np.round(ext_llr,4)}')
+    print(f'Turbo Decoder 2 ext_llr_pl2:\n{np.round(Le2Pl2,4)}')
     #print('received_seq_tmp[:,2]',received_seq_tmp[:,2])
     #print(f'ext_LLr_parity from decoder2:\n{ext_llr_parity}')
     #print(f'Extrinsic LLR from decoder2:\n{np.round(ext_llr,4)}')
@@ -598,15 +600,22 @@ for i in range(num_iter):
     #fsm_gamma_alpha_beta_table_disp(gen_poly,fsm_table,gamma_table,alpha_table,beta_table)
 
     siso_out=de_interleaver(intlv_pattern,llr)
-    print(f'full LLR from decoder2:\n{llr}')
+    #print(f'full LLR from decoder2:\n{np.round(llr, 4)}')
     #print(f'full LLR from decoder2:\n{np.round(llr,4)}')
     #print(f'full LLR from decoder2:\n{np.round(llr,decimals=4)}')
-    print(f'deinterleaved Soft-output L-values:\n{siso_out}')
+    #print(f'deinterleaved Soft-output L-values:\n{np.round(siso_out, 4)}')
     #print(f'deinterleaved Soft-output L-values:\n{np.round(siso_out,decimals=4)}')    
     
-    print('Le12Ul:',Le12Ul)
-    print('Le1Pl1:',Le1Pl1)
-    print('Le2Pl2:',Le2Pl2)  
+    #print('Le12Ul:', np.round(Le12Ul, 4))
+    #print('Le1Pl1:', np.round(Le1Pl1, 4))
+    #print('Le2Pl2:', np.round(Le2Pl2, 4))  
     BeforeInterleaving = puncturing(Le12Ul, Le1Pl1, Le2Pl2, punc_matrix)
     interleavedForMIMO = interleaver(channel_interleaver_pattern, BeforeInterleaving)
-    print(f'Turbo Decoder 2 Extrinsic LLR, after channel interleaving, to be passed into the MIMO detector:\n{interleavedForMIMO}')
+    print(f'Turbo Decoder 2 Extrinsic LLR, after channel interleaving, to be passed into the MIMO detector:\n{np.round(interleavedForMIMO, 4)}')
+
+ans = np.array([ 1.8315,  0.4014, -0.1156 , 1.6556,  1.1416, -0.809,   0.3098, -1.6584,  0.7972,
+0.1289, -0.3062, -0.6605, -2.5132, -0.0577,  1.5855,  0.7772]
+)
+deint = de_interleaver(channel_interleaver_pattern, ans)
+
+print('deinterleaved:', deint)
