@@ -442,15 +442,16 @@ def puncturing(systematic, parity1, parity2, punc_mat):
     Returns:
         np.ndarray: The punctured output sequence.
     """
-    punc_vec = punc_mat.flatten()
+    punc_vec = punc_mat.flatten()  # Flatten the puncturing matrix into a 1D array
     punctured_out = []
 
     for i in range(len(systematic)):
-        if punc_vec[i % len(punc_vec)]:
+        # Append values based on the puncturing pattern
+        if punc_vec[(3 * i) % len(punc_vec)]:
             punctured_out.append(systematic[i])
-        if punc_vec[(i + 1) % len(punc_vec)]:
+        if punc_vec[(3 * i + 1) % len(punc_vec)]:
             punctured_out.append(parity1[i])
-        if punc_vec[(i + 2) % len(punc_vec)]:
+        if punc_vec[(3 * i + 2) % len(punc_vec)]:
             punctured_out.append(parity2[i])
 
     return np.array(punctured_out)
