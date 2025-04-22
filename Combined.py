@@ -608,10 +608,11 @@ for i in range(num_iter):
     #print(f'deinterleaved Soft-output L-values:\n{np.round(siso_out, 4)}')
     #print(f'deinterleaved Soft-output L-values:\n{np.round(siso_out,decimals=4)}')    
     
-    #print('Le12Ul:', np.round(Le12Ul, 4))
-    #print('Le1Pl1:', np.round(Le1Pl1, 4))
-    #print('Le2Pl2:', np.round(Le2Pl2, 4))  
+    print('Le12Ul:\n', np.round(Le12Ul, 4))
+    print('Le1Pl1:\n', np.round(Le1Pl1, 4))
+    print('Le2Pl2:\n', np.round(Le2Pl2, 4))  
     BeforeInterleaving = puncturing(Le12Ul, Le1Pl1, Le2Pl2, punc_matrix)
+    print(f'Before Interleaving:\n{np.round(BeforeInterleaving, 4)}')
     interleavedForMIMO = interleaver(channel_interleaver_pattern, BeforeInterleaving)
     print(f'Turbo Decoder 2 Extrinsic LLR, after channel interleaving, to be passed into the MIMO detector:\n{np.round(interleavedForMIMO, 4)}')
 
