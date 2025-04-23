@@ -494,7 +494,7 @@ def process_mimo_decoder(H, Y, Es, EbN0):
 
         received_seq = deinterleavedLe
         #print('received_seq.size:',received_seq.size)
-        code_block_len = 1282  # 12(info)+2(term)
+        code_block_len = Y.size  # 12(info)+2(term)
 
         
 
@@ -565,19 +565,24 @@ Mt = 2
 Nr = 2
 Code_R = 0.5
 
+EbN0=2
+sigma2 = (Es / 2) * (Nr / (Code_R * Mt * Mc)) * (10 ** (-EbN0 / 10))
 
+EsN0 = EbN0 - 10 * np.log10(Nr / (Code_R * Mt * Mc))  # in dB
+EsN0 = np.round(10 ** (EsN0 / 10), decimals=4)
 
+intlv_pattern = np.array([2,  1,  7, 5,  3,  6,  8,  4])-1
+channel_interleaver_pattern = np.random.permutation(np.arange(0, 1282*2))
+
+Y = np.array([
+    [-0.9-1.0j, -2.0-1.4j],
+    [-0.3-1.7j,  0.2+2.0j],
+    [ 1.2-0.5j,  1.2-0.4j],
+    [-0.4-1.3j, -0.3+0.8j]
+])
+
+"""
 H = [generate_complex_array(2, 2, np.sqrt(0.5)) for _ in range(641)]
-
-#Y = np.array([
-#    [-0.9-1.0j, -2.0-1.4j],
-#    [-0.3-1.7j,  0.2+2.0j],
-#    [ 1.2-0.5j,  1.2-0.4j],
-#    [-0.4-1.3j, -0.3+0.8j]
-#])
-
-#SoftDecodedInfoBits = process_mimo_decoder(H, Y, Es=4, EbN0=2)
-#print("Soft Decoded Information Bits:\n", SoftDecodedInfoBits)
 
 
 ''' do the modeling for the turbo'''
@@ -585,15 +590,6 @@ intlv_pattern = np.random.permutation(np.arange(0, 1282))
 channel_interleaver_pattern = np.random.permutation(np.arange(0, 1282*2))
 
 import matplotlib.pyplot as plt
-def add_awgn_noise(signal, EsN0_dB):
-    """ Add AWGN noise to the signal for a given SNR (dB). """
-    snr_linear = 10 ** (EsN0_dB / 10)  # Convert SNR dB to linear scale
-    signal_power = 1  # Compute signal power
-    noise_power = signal_power / snr_linear  # Compute noise power
-    noise = np.sqrt(noise_power) * np.random.randn(len(signal))  # Generate Gaussian noise
-    return signal + noise  # Return noisy signal
-# Define SNR values in dB
-
 
 length_u = 1280
 u = np.random.randint(0, 2, length_u)
@@ -623,3 +619,4 @@ for snr in snr_values:
 #print(BER57)
 #print('v75[0:8]',v75[0:8])
 #print('QPSK75[0:8]',QPSK75[0:8])
+"""
