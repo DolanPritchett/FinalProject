@@ -78,6 +78,12 @@ def puncturing(systematic, parity1, parity2, punc_mat):
 def bitfield(n):
     return [int(digit) for digit in bin(n)[2:]]  # [2:] to chop off the "0b" part
 
+def qpsk_mapping(bits):
+        if len(bits) % 2 != 0:
+            raise ValueError("Input bit array length must be even for QPSK mapping.")
+        bits = np.array(bits).reshape(-1, 2)
+        return np.array((1 - 2 * bits[:, 1]) + 1j * (1 - 2 * bits[:, 0]))
+
 def encoder75(InputSequence):
     
 
@@ -130,8 +136,16 @@ def encoder75(InputSequence):
     before_punc = TurboEncoder(InputSequence, interleaver, SRCCencoder, gen_poly)
     punctured = puncturing(before_punc[:,0], before_punc[:,1], before_punc[:,2], punc_matrix)
 
+    # Separate even-indexed and odd-indexed outputs
+    even_indices = punctured[::2]  # Elements at indices 0, 2, 4, ...
+    odd_indices = punctured[1::2]  # Elements at indices 1, 3, 5, ...
 
-    return punctured
+    # Combine into a 2D array
+    separated_output = np.zeros((len(even_indices), 2), dtype=int)
+    separated_output[:, 0] = even_indices
+    separated_output[:, 1] = odd_indices
+
+    return separated_output
 
 def compute_ld_le(H, Y, La, Es, EbN0):
     M = 2
@@ -150,12 +164,6 @@ def compute_ld_le(H, Y, La, Es, EbN0):
     def maxStar(x, y):
         x, y = float(x), float(y)
         return max(x, y) + np.log1p(np.exp(-abs(x - y)))
-
-    def qpsk_mapping(bits):
-        if len(bits) % 2 != 0:
-            raise ValueError("Input bit array length must be even for QPSK mapping.")
-        bits = np.array(bits).reshape(-1, 2)
-        return np.array((1 - 2 * bits[:, 1]) + 1j * (1 - 2 * bits[:, 0]))
 
     for k in range(M * Mc):
         PlusSeq = np.zeros((num_sequences, M * Mc), dtype=int)
@@ -579,3 +587,26 @@ Y = np.array([
 
 SoftDecodedInfoBits = process_mimo_decoder(H, Y, Es=4, EbN0=2)
 print("Soft Decoded Information Bits:\n", SoftDecodedInfoBits)
+
+import matplotlib.pyplot as plt
+def add_awgn_noise(signal, EsN0_dB):
+    """ Add AWGN noise to the signal for a given SNR (dB). """
+    snr_linear = 10 ** (EsN0_dB / 10)  # Convert SNR dB to linear scale
+    signal_power = 1  # Compute signal power
+    noise_power = signal_power / snr_linear  # Compute noise power
+    noise = np.sqrt(noise_power) * np.random.randn(len(signal))  # Generate Gaussian noise
+    return signal + noise  # Return noisy signal
+# Define SNR values in dB
+snr_values = [0, 1, 2, 3, 4]
+EsN0_dB = snr_values + 10 * np.log10(2)
+length_u = 1280
+u = np.random.randint(0, 2, length_u)
+
+v75 = encoder75(u)  # Encoder output
+BPSK57 = 2 * v75 - 1  # BPSK Mapping: 0 → -1, 1 → +1
+noisy_signals57 = {snr: add_awgn_noise(BPSK57, snr) for snr in range(EsN0_dB.size)} # Apply noise for each SNR level
+BER57 = np.zeros(5,dtype=float)
+for snr in range(EsN0_dB.size):
+    L, alpha, beta, gamma = BCJR(maxStar, Lu, 4*10**EsN0_dB[snr]/10,noisy_signals57[snr], Generator1, Generator2, recursive=False)
+    BER57[snr] = sum((L[0:length_u]>=0)!=u)/length_u
+print(BER57)
