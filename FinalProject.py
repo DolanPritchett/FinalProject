@@ -1,78 +1,210 @@
 import numpy as np
 
-def process_mimo_decoder(H, Y, Es=4, EbN0=2):
+def interleaver(intlv_pattern, in_seq):    
+    if len(intlv_pattern) != len(in_seq):
+        print(f'ERROR: interleaver pattern length is not matched with input sequence')
+        return None
+        
+    out_seq = []
+    for i in range(len(in_seq)):        
+        out_seq += [in_seq[intlv_pattern[i]]]
+    out_seq = np.array(out_seq)
+    return out_seq
 
-    def compute_ld_le(H, Y, La,Es, EbN0):
-        M = 2
-        Mc = 2
-        R = 1 / 2
-        sigma2 = (Es / 2) * (2 / (R * M * Mc)) * (10 ** (-EbN0 / 10))
+def de_interleaver(intlv_pattern, in_seq):    
+    if len(intlv_pattern) != len(in_seq):
+        print(f'ERROR: interleaver pattern length is not matched with input sequence')
+        return None
+    
+    de_intlv_pattern = np.zeros(len(intlv_pattern), dtype=int)
+    for i, index in enumerate(intlv_pattern):
+        de_intlv_pattern[index] = i
 
-        num_sequences = 2 ** (M * Mc - 1)
-        num_bits = int(np.ceil(np.log2(num_sequences)))
-        ints = np.arange(num_sequences)
-        bit_sequences = ((ints[:, None] & (1 << np.arange(num_bits)[::-1])) > 0).astype(int)
+    out_seq = []
+    for i in range(len(in_seq)):               
+        out_seq += [in_seq[de_intlv_pattern[i]]]        
+    out_seq = np.array(out_seq)
+    return out_seq
 
-        Ld = np.zeros(M * Mc, dtype=float)
-        Le = np.zeros(M * Mc, dtype=float)
+def depuncturing(received_seq, code_block_len, num_pccc, punc_mat):
+    # code_block_len: the length of code block
+    # ex) n,k,m convolutional code, if k is 1000 and m is 5, and R=1/3
+    # then code_block_len is k+m=1005 and total code length is (k+m)*(1/R)
+    # num_pccc: the number of constituent codes
 
-        def maxStar(x, y):
-            x, y = float(x), float(y)
-            return max(x, y) + np.log1p(np.exp(-abs(x - y)))
+    k = code_block_len * (num_pccc + 1) 
+    # total code length without puncturing if each constituent code has R=1/2
 
-        def qpsk_mapping(bits):
-            if len(bits) % 2 != 0:
-                raise ValueError("Input bit array length must be even for QPSK mapping.")
-            bits = np.array(bits).reshape(-1, 2)
-            return np.array((1 - 2 * bits[:, 1]) + 1j * (1 - 2 * bits[:, 0]))
+    punc_vec = punc_mat.flatten()
+    depunc_out = np.array([])
 
-        for k in range(M * Mc):
-            PlusSeq = np.zeros((num_sequences, M * Mc), dtype=int)
-            MinusSeq = np.zeros((num_sequences, M * Mc), dtype=int)
-            SPlus = np.zeros((num_sequences, M), dtype=complex)
-            SMinus = np.zeros((num_sequences, M), dtype=complex)
+    j = 0
+    for i in range(k):
+        if punc_vec[i % len(punc_vec)] == True:
+            depunc_out = np.append(depunc_out, received_seq[j])
+            j += 1
+        else:
+            depunc_out = np.append(depunc_out, 0.0)
+    
+    return depunc_out
 
-            for i in range(num_sequences):
-                PlusSeq[i] = np.insert(bit_sequences[i], k, 1)
-                MinusSeq[i] = np.insert(bit_sequences[i], k, 0)
-                SPlus[i] = qpsk_mapping(PlusSeq[i])
-                SMinus[i] = qpsk_mapping(MinusSeq[i])
+def puncturing(systematic, parity1, parity2, punc_mat):
+    """
+    Punctures the input systematic, parity1, and parity2 arrays based on the puncturing matrix.
 
-            PlusAccum = -1 / (2 * sigma2) * np.linalg.norm(Y - H @ SPlus[0].reshape(-1, 1)) ** 2
-            MinusAccum = -1 / (2 * sigma2) * np.linalg.norm(Y - H @ SMinus[0].reshape(-1, 1)) ** 2
+    Args:
+        systematic (np.ndarray): The systematic bits array.
+        parity1 (np.ndarray): The parity 1 bits array.
+        parity2 (np.ndarray): The parity 2 bits array.
+        punc_mat (np.ndarray): The puncturing matrix.
 
+    Returns:
+        np.ndarray: The punctured output sequence.
+    """
+    punc_vec = punc_mat.flatten()  # Flatten the puncturing matrix into a 1D array
+    punctured_out = []
+
+    for i in range(len(systematic)):
+        # Append values based on the puncturing pattern
+        if punc_vec[(3 * i) % len(punc_vec)]:
+            punctured_out.append(systematic[i])
+        if punc_vec[(3 * i + 1) % len(punc_vec)]:
+            punctured_out.append(parity1[i])
+        if punc_vec[(3 * i + 2) % len(punc_vec)]:
+            punctured_out.append(parity2[i])
+
+    return np.array(punctured_out)
+
+def bitfield(n):
+    return [int(digit) for digit in bin(n)[2:]]  # [2:] to chop off the "0b" part
+
+def encoder75(InputSequence):
+    
+
+    def SRCCencoder(InputSequence, *args):
+        TerminatingBits = np.zeros(args[0].size-1, dtype=int) #initialize the array for terminating bits
+        AppendedSequence = np.append(InputSequence,TerminatingBits).astype(int) # append the initialized but not populated teminating bits to the input sequence
+        Outputs = np.zeros([AppendedSequence.size, len(args)], dtype=int)
+        ShiftRegister = np.zeros(args[0].size-1, dtype=int)
+        # ShiftRegister[0] = InputSequence[0]
+        for j in range(AppendedSequence.size):
+            if j >= InputSequence.size:
+                AppendedSequence[j] = np.bitwise_xor.reduce(args[0][1:] * ShiftRegister)
+                
+            Outputs[j,0] = AppendedSequence[j]
+            #print('output[:,0]:', Outputs[:,0])
+            #print('appended sequence:', AppendedSequence[j])
+            RecursiveT0 = np.bitwise_xor.reduce(np.append(AppendedSequence[j],args[0][1:] * ShiftRegister))
+            components = np.append(RecursiveT0,ShiftRegister)
+            
+            for i in range(1,len(args)):
+                
+                Outputs[j,i] = np.bitwise_xor.reduce(components*args[i])
+
+            #Feedback = args[0]*components
+            ShiftRegister[1:ShiftRegister.size] = ShiftRegister[0:ShiftRegister.size-1]
+            ShiftRegister[0] = RecursiveT0
+
+        return Outputs[:,0],Outputs[:,1]
+
+    def TurboEncoder(InputSequence, Interleaver, Encoder, gen_poly):
+        poly1, poly2 = bitfield(gen_poly[0]), bitfield(gen_poly[1])
+        Outputs = np.zeros([InputSequence.size + poly1.size -1, 3], dtype=int)
+        Outputs[:,0],Outputs[:,1] = Encoder(InputSequence,poly1,poly2)
+        #print(f'Outputs[:,0]: {Outputs[:,0]}')
+        #print(f'Outputs[:,1]: {Outputs[:,1]}')
+        Interleaved = Interleaver(intlv_pattern, Outputs[:,0])
+        Waste, temp = Encoder(Interleaved, poly1,poly2)
+        Outputs[:,2] = temp[0:InputSequence.size+poly1.size -1]
+        #print(f'Outputs[:,2]: {Outputs[:,2]}')
+        return Outputs
+
+    
+
+    intlv_pattern = np.array([2, 1, 7, 5, 3, 6, 8, 4])
+    intlv_pattern = intlv_pattern - 1
+    punc_matrix = np.array([[True, True], [True, False], [False, True]]).T
+
+    gen_poly = [0o7, 0o5]
+
+    before_punc = TurboEncoder(InputSequence, interleaver, SRCCencoder, gen_poly)
+    punctured = puncturing(before_punc[:,0], before_punc[:,1], before_punc[:,2], punc_matrix)
+
+
+    return punctured
+
+def compute_ld_le(H, Y, La, Es, EbN0):
+    M = 2
+    Mc = 2
+    R = 1 / 2
+    sigma2 = (Es / 2) * (2 / (R * M * Mc)) * (10 ** (-EbN0 / 10))
+
+    num_sequences = 2 ** (M * Mc - 1)
+    num_bits = int(np.ceil(np.log2(num_sequences)))
+    ints = np.arange(num_sequences)
+    bit_sequences = ((ints[:, None] & (1 << np.arange(num_bits)[::-1])) > 0).astype(int)
+
+    Ld = np.zeros(M * Mc, dtype=float)
+    Le = np.zeros(M * Mc, dtype=float)
+
+    def maxStar(x, y):
+        x, y = float(x), float(y)
+        return max(x, y) + np.log1p(np.exp(-abs(x - y)))
+
+    def qpsk_mapping(bits):
+        if len(bits) % 2 != 0:
+            raise ValueError("Input bit array length must be even for QPSK mapping.")
+        bits = np.array(bits).reshape(-1, 2)
+        return np.array((1 - 2 * bits[:, 1]) + 1j * (1 - 2 * bits[:, 0]))
+
+    for k in range(M * Mc):
+        PlusSeq = np.zeros((num_sequences, M * Mc), dtype=int)
+        MinusSeq = np.zeros((num_sequences, M * Mc), dtype=int)
+        SPlus = np.zeros((num_sequences, M), dtype=complex)
+        SMinus = np.zeros((num_sequences, M), dtype=complex)
+
+        for i in range(num_sequences):
+            PlusSeq[i] = np.insert(bit_sequences[i], k, 1)
+            MinusSeq[i] = np.insert(bit_sequences[i], k, 0)
+            SPlus[i] = qpsk_mapping(PlusSeq[i])
+            SMinus[i] = qpsk_mapping(MinusSeq[i])
+
+        PlusAccum = -1 / (2 * sigma2) * np.linalg.norm(Y - H @ SPlus[0].reshape(-1, 1)) ** 2
+        MinusAccum = -1 / (2 * sigma2) * np.linalg.norm(Y - H @ SMinus[0].reshape(-1, 1)) ** 2
+
+        for j in range(M * Mc):
+            if j != k:
+                PlusAccum += 0.5 * -(1 - 2 * PlusSeq[0][j]) * La[j]
+                MinusAccum += 0.5 * -(1 - 2 * MinusSeq[0][j]) * La[j]
+
+        for i in range(1, num_sequences):
+            PlusSumAccum = 0
+            MinusSumAccum = 0
             for j in range(M * Mc):
                 if j != k:
-                    PlusAccum += 0.5 * -(1 - 2 * PlusSeq[0][j]) * La[j]
-                    MinusAccum += 0.5 * -(1 - 2 * MinusSeq[0][j]) * La[j]
+                    PlusSumAccum += -(1 - 2 * PlusSeq[i][j]) * La[j]
+                    MinusSumAccum += -(1 - 2 * MinusSeq[i][j]) * La[j]
+            PlusAccum = maxStar(
+                PlusAccum,
+                -1 / (2 * sigma2) * np.linalg.norm(Y - H @ SPlus[i].reshape(-1, 1)) ** 2 + 0.5 * PlusSumAccum,
+            )
+            MinusAccum = maxStar(
+                MinusAccum,
+                -1 / (2 * sigma2) * np.linalg.norm(Y - H @ SMinus[i].reshape(-1, 1)) ** 2 + 0.5 * MinusSumAccum,
+            )
 
-            for i in range(1, num_sequences):
-                PlusSumAccum = 0
-                MinusSumAccum = 0
-                for j in range(M * Mc):
-                    if j != k:
-                        PlusSumAccum += -(1 - 2 * PlusSeq[i][j]) * La[j]
-                        MinusSumAccum += -(1 - 2 * MinusSeq[i][j]) * La[j]
-                PlusAccum = maxStar(
-                    PlusAccum,
-                    -1 / (2 * sigma2) * np.linalg.norm(Y - H @ SPlus[i].reshape(-1, 1)) ** 2 + 0.5 * PlusSumAccum,
-                )
-                MinusAccum = maxStar(
-                    MinusAccum,
-                    -1 / (2 * sigma2) * np.linalg.norm(Y - H @ SMinus[i].reshape(-1, 1)) ** 2 + 0.5 * MinusSumAccum,
-                )
+        Ld[k] = La[k] + PlusAccum - MinusAccum
+        Le[k] = Ld[k] - La[k]
 
-            Ld[k] = La[k] + PlusAccum - MinusAccum
-            Le[k] = Ld[k] - La[k]
+    return Ld, Le
 
-        return Ld, Le
+def process_mimo_decoder(H, Y, Es=4, EbN0=2):
 
     def BCJR_decoder2(gen_poly, srcc_en, max_log_map_en, term_en, La, EsN0, received_seq):
 
         #Conversion of Binary to Python Integer List: '0b1101'=> [1,1,0,1]
         #the Leftest bit is LSB. ex) 1101 => G(D)=1+D+D^3 (not 1+D^2+D^3)
-        def bitfield(n):
-            return [int(digit) for digit in bin(n)[2:]] # [2:] to chop off the "0b" part
+        
 
         #Conversion of Binary Integer List to Decimal: [1,1,0,1] => 11 
         #the Leftest bit is LSB. ex) [1,1,0,1] => 11 (not 7!!)
@@ -318,81 +450,6 @@ def process_mimo_decoder(H, Y, Es=4, EbN0=2):
         # Return both LLR arrays
         return llr_info, llr_parity, decod_seq, fsm_table, gamma_table, alpha_table, beta_table
 
-    def interleaver(intlv_pattern,in_seq):    
-        if len(intlv_pattern)!=len(in_seq):
-            print(f'ERROR: interleaver pattern length is not matched with input sequence')
-            return None
-            
-        out_seq=[]
-        for i in range(len(in_seq)):        
-            out_seq+=[in_seq[intlv_pattern[i]]]
-        out_seq=np.array(out_seq)
-        return out_seq
-
-    def de_interleaver(intlv_pattern,in_seq):    
-        if len(intlv_pattern)!=len(in_seq):
-            print(f'ERROR: interleaver pattern length is not matched with input sequence')
-            return None
-        
-        de_intlv_pattern=np.zeros(len(intlv_pattern),dtype=int)
-        for i,index in enumerate(intlv_pattern):
-            de_intlv_pattern[index]=i
-        #print(f'de-interleaver pattern:\n{de_intlv_pattern}')
-
-        out_seq=[]
-        for i in range(len(in_seq)):               
-            out_seq+=[in_seq[de_intlv_pattern[i]]]        
-        out_seq=np.array(out_seq)
-        return out_seq
-
-    def depuncturing(received_seq,code_block_len,num_pccc,punc_mat):
-        # code_block_len: the length of code block
-        # ex) n,k,m convolutional code, if k is 1000 and m is 5, and R=1/3
-        # then code_block_len is k+m=1005 and total code length is (k+m)*(1/R)
-        # num_pccc: the number of constituent codes
-
-        k=code_block_len*(num_pccc+1) 
-        #total code length without puncturing if each constituent code has R=1/2
-
-        punc_vec=punc_mat.flatten()
-        depunc_out=np.array([])
-
-        j=0
-        for i in range(k):
-            if punc_vec[i%len(punc_vec)]==True:
-                depunc_out=np.append(depunc_out,received_seq[j])
-                j+=1
-            else:
-                depunc_out=np.append(depunc_out, 0.0)
-        
-        return depunc_out
-
-    def puncturing(systematic, parity1, parity2, punc_mat):
-        """
-        Punctures the input systematic, parity1, and parity2 arrays based on the puncturing matrix.
-
-        Args:
-            systematic (np.ndarray): The systematic bits array.
-            parity1 (np.ndarray): The parity 1 bits array.
-            parity2 (np.ndarray): The parity 2 bits array.
-            punc_mat (np.ndarray): The puncturing matrix.
-
-        Returns:
-            np.ndarray: The punctured output sequence.
-        """
-        punc_vec = punc_mat.flatten()  # Flatten the puncturing matrix into a 1D array
-        punctured_out = []
-
-        for i in range(len(systematic)):
-            # Append values based on the puncturing pattern
-            if punc_vec[(3 * i) % len(punc_vec)]:
-                punctured_out.append(systematic[i])
-            if punc_vec[(3 * i + 1) % len(punc_vec)]:
-                punctured_out.append(parity1[i])
-            if punc_vec[(3 * i + 2) % len(punc_vec)]:
-                punctured_out.append(parity2[i])
-
-        return np.array(punctured_out)
 
     print("\n======     Course Project Code Review Input 2    ======\n")
 
