@@ -97,3 +97,29 @@ def encoder75(InputSequence):
 InputSequence = np.array([1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0])
 punctured = encoder75(InputSequence)
 print(f'Punctured Output: {punctured}')
+
+random_array = np.random.permutation(np.arange(0, 8))
+random_array2 = np.random.permutation(np.arange(0, 4))
+print(f'Random Array: {random_array}')
+print(f'Random Array 2: {random_array2}')
+
+h_real = np.random.normal(loc=0, scale=np.sqrt(0.5))
+h_imag = np.random.normal(loc=0, scale=np.sqrt(0.5))
+
+# Construct the complex number
+h_ij = h_real + 1j * h_imag
+
+print("h_ij:", h_ij)
+print("Magnitude squared:", abs(h_ij)**2)
+
+def generate_complex_array(rows, cols):
+    real = np.random.normal(loc=0, scale=np.sqrt(0.5), size=(rows, cols))
+    imag = np.random.normal(loc=0, scale=np.sqrt(0.5), size=(rows, cols))
+    return real + 1j * imag
+
+# Create a list of 10 such arrays
+array_list = [generate_complex_array(2, 2) for _ in range(10)]
+
+# Example: print the first one
+print("First 4x4 complex array:")
+print(array_list[0],array_list[1])

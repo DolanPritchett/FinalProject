@@ -1,5 +1,10 @@
 import numpy as np
 
+def generate_complex_array(rows, cols, scale):
+    real = np.random.normal(loc=0, scale=scale, size=(rows, cols))
+    imag = np.random.normal(loc=0, scale=scale, size=(rows, cols))
+    return real + 1j * imag
+
 def interleaver(intlv_pattern, in_seq):    
     if len(intlv_pattern) != len(in_seq):
         print(f'ERROR: interleaver pattern length is not matched with input sequence')
@@ -115,6 +120,7 @@ def encoder75(InputSequence):
 
     def TurboEncoder(InputSequence, Interleaver, Encoder, gen_poly):
         poly1, poly2 = bitfield(gen_poly[0]), bitfield(gen_poly[1])
+        poly1, poly2 = np.array(poly1), np.array(poly2)
         Outputs = np.zeros([InputSequence.size + poly1.size -1, 3], dtype=int)
         Outputs[:,0],Outputs[:,1] = Encoder(InputSequence,poly1,poly2)
         #print(f'Outputs[:,0]: {Outputs[:,0]}')
@@ -127,8 +133,7 @@ def encoder75(InputSequence):
 
     
 
-    intlv_pattern = np.array([2, 1, 7, 5, 3, 6, 8, 4])
-    intlv_pattern = intlv_pattern - 1
+    
     punc_matrix = np.array([[True, True], [True, False], [False, True]]).T
 
     gen_poly = [0o7, 0o5]
@@ -148,10 +153,7 @@ def encoder75(InputSequence):
     return punctured #separated_output
 
 def compute_ld_le(H, Y, La, Es, EbN0):
-    M = 2
-    Mc = 2
-    R = 1 / 2
-    sigma2 = (Es / 2) * (2 / (R * M * Mc)) * (10 ** (-EbN0 / 10))
+
 
     num_sequences = 2 ** (M * Mc - 1)
     num_bits = int(np.ceil(np.log2(num_sequences)))
@@ -206,7 +208,7 @@ def compute_ld_le(H, Y, La, Es, EbN0):
 
     return Ld, Le
 
-def process_mimo_decoder(H, Y, Es=4, EbN0=2):
+def process_mimo_decoder(H, Y, Es, EbN0):
 
     def BCJR_decoder2(gen_poly, srcc_en, max_log_map_en, term_en, La, EsN0, received_seq):
 
@@ -459,7 +461,7 @@ def process_mimo_decoder(H, Y, Es=4, EbN0=2):
         return llr_info, llr_parity, decod_seq, fsm_table, gamma_table, alpha_table, beta_table
 
 
-    print("\n======     Course Project Code Review Input 2    ======\n")
+    #print("\n======     Course Project Code Review Input 2    ======\n")
 
     Ld = np.zeros(Y.size * 2, dtype=float)
     Le = np.zeros(Y.size * 2, dtype=float)
@@ -474,10 +476,7 @@ def process_mimo_decoder(H, Y, Es=4, EbN0=2):
                 matrix, Recd, interleavedForMIMO[4 * i : 4 * i + 4], Es, EbN0
             )
 
-        channel_interleaver_pattern = np.array(
-            [3, 8, 14, 1, 5, 4, 10, 9, 11, 16, 15, 12, 13, 6, 7, 2]
-        )
-        channel_interleaver_pattern = channel_interleaver_pattern - 1
+        
         deinterleavedLd = de_interleaver(channel_interleaver_pattern, Ld)
         deinterleavedLe = de_interleaver(channel_interleaver_pattern, Le)
 
@@ -488,25 +487,15 @@ def process_mimo_decoder(H, Y, Es=4, EbN0=2):
         dec1_term_en = True
         dec2_term_en = False
         gen_poly = [0o7, 0o5]
-        intlv_pattern = np.array([2, 1, 7, 5, 3, 6, 8, 4])
-        intlv_pattern = intlv_pattern - 1
         punc_matrix = np.array([[True, True], [True, False], [False, True]]).T
         punc_en = True
         num_pccc = 2
 
         received_seq = deinterleavedLe
 
-        code_block_len = 8  # 12(info)+2(term)
+        code_block_len = 1282  # 12(info)+2(term)
 
-        Mc = 2  # QPSK
-        Mt = 2
-        Nr = 2
-        Code_R = 0.5
-
-        sigma2 = (Es / 2) * (Nr / (Code_R * Mt * Mc)) * (10 ** (-EbN0 / 10))
-
-        EsN0 = EbN0 - 10 * np.log10(Nr / (Code_R * Mt * Mc))  # in dB
-        EsN0 = np.round(10 ** (EsN0 / 10), decimals=4)
+        
 
         num_iter = 2
 
@@ -564,29 +553,35 @@ def process_mimo_decoder(H, Y, Es=4, EbN0=2):
 
     return siso_out
 
-H = [
-    np.array([[1.8+1.5j, 0.4-0.2j],
-              [1.0+0.3j, 2.2-0.9j]]),
+Es=4
 
-    np.array([[1.9-2.6j, -1.0+0.7j],
-              [1.0+0.9j, -0.2-0.7j]]),
+M = 2
+Mc = 2
+R = 1 / 2
 
-    np.array([[-0.1+2.3j, 0.4-1.5j],
-              [0.1+0.0j, 1.5-0.2j]]),
+Mc = 2  # QPSK
+Mt = 2
+Nr = 2
+Code_R = 0.5
 
-    np.array([[0.8+1.5j, 0.1+1.5j],
-              [0.4+0.2j, 0.3+0.4j]])
-]
 
-Y = np.array([
-    [-0.9-1.0j, -2.0-1.4j],
-    [-0.3-1.7j,  0.2+2.0j],
-    [ 1.2-0.5j,  1.2-0.4j],
-    [-0.4-1.3j, -0.3+0.8j]
-])
 
-SoftDecodedInfoBits = process_mimo_decoder(H, Y, Es=4, EbN0=2)
-print("Soft Decoded Information Bits:\n", SoftDecodedInfoBits)
+H = [generate_complex_array(2, 2, np.sqrt(0.5)) for _ in range(1280)]
+
+#Y = np.array([
+#    [-0.9-1.0j, -2.0-1.4j],
+#    [-0.3-1.7j,  0.2+2.0j],
+#    [ 1.2-0.5j,  1.2-0.4j],
+#    [-0.4-1.3j, -0.3+0.8j]
+#])
+
+#SoftDecodedInfoBits = process_mimo_decoder(H, Y, Es=4, EbN0=2)
+#print("Soft Decoded Information Bits:\n", SoftDecodedInfoBits)
+
+
+''' do the modeling for the turbo'''
+intlv_pattern = np.random.permutation(np.arange(0, 1282))
+channel_interleaver_pattern = np.random.permutation(np.arange(0, 1280*2))
 
 import matplotlib.pyplot as plt
 def add_awgn_noise(signal, EsN0_dB):
@@ -597,18 +592,31 @@ def add_awgn_noise(signal, EsN0_dB):
     noise = np.sqrt(noise_power) * np.random.randn(len(signal))  # Generate Gaussian noise
     return signal + noise  # Return noisy signal
 # Define SNR values in dB
-snr_values = [0, 1, 2, 3, 4]
-EsN0_dB = snr_values + 10 * np.log10(2)
+
+
 length_u = 1280
 u = np.random.randint(0, 2, length_u)
 
 v75 = encoder75(u)  # Encoder output
 QPSK75 = qpsk_mapping(v75)  # BPSK Mapping: 0 → -1, 1 → +1
+snr_values = [0, 1, 2, 3, 4]
+for snr in snr_values:
+    EbN0=snr_values[snr]
+    sigma2 = (Es / 2) * (Nr / (Code_R * Mt * Mc)) * (10 ** (-EbN0 / 10))
+
+    EsN0 = EbN0 - 10 * np.log10(Nr / (Code_R * Mt * Mc))  # in dB
+    EsN0 = np.round(10 ** (EsN0 / 10), decimals=4)
+    Y = np.zeros((640, 2), dtype=complex)  # Initialize Y with zeros
+    for i in range(640):
+        Y[i] = (H[i] @ QPSK75[2*i:2*i+2].reshape(-1,1) + generate_complex_array(2, 1, np.sqrt(sigma2))).reshape(1,2)
+    Output = process_mimo_decoder(H, Y, Es, EbN0)
+    CER = np.sum((L[0:length_u]>=0)!=u)/length_u
+    print(f'CER for SNR {snr}: {CER}')
 #noisy_signals57 = {snr: add_awgn_noise(BPSK57, snr) for snr in range(EsN0_dB.size)} # Apply noise for each SNR level
 #BER57 = np.zeros(5,dtype=float)
 #for snr in range(EsN0_dB.size):
 #    L, alpha, beta, gamma = BCJR(maxStar, Lu, 4*10**EsN0_dB[snr]/10,noisy_signals57[snr], Generator1, Generator2, recursive=False)
 #    BER57[snr] = sum((L[0:length_u]>=0)!=u)/length_u
 #print(BER57)
-print('v75[0:8]',v75[0:8])
-print('QPSK75[0:8]',QPSK75[0:8])
+#print('v75[0:8]',v75[0:8])
+#print('QPSK75[0:8]',QPSK75[0:8])
