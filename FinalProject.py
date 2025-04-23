@@ -137,15 +137,15 @@ def encoder75(InputSequence):
     punctured = puncturing(before_punc[:,0], before_punc[:,1], before_punc[:,2], punc_matrix)
 
     # Separate even-indexed and odd-indexed outputs
-    even_indices = punctured[::2]  # Elements at indices 0, 2, 4, ...
-    odd_indices = punctured[1::2]  # Elements at indices 1, 3, 5, ...
+    #even_indices = punctured[::2]  # Elements at indices 0, 2, 4, ...
+    #odd_indices = punctured[1::2]  # Elements at indices 1, 3, 5, ...
 
     # Combine into a 2D array
-    separated_output = np.zeros((len(even_indices), 2), dtype=int)
-    separated_output[:, 0] = even_indices
-    separated_output[:, 1] = odd_indices
+    #separated_output = np.zeros((len(even_indices), 2), dtype=int)
+    #separated_output[:, 0] = even_indices
+    #separated_output[:, 1] = odd_indices
 
-    return separated_output
+    return punctured #separated_output
 
 def compute_ld_le(H, Y, La, Es, EbN0):
     M = 2
