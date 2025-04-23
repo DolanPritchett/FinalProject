@@ -603,10 +603,12 @@ length_u = 1280
 u = np.random.randint(0, 2, length_u)
 
 v75 = encoder75(u)  # Encoder output
-BPSK57 = 2 * v75 - 1  # BPSK Mapping: 0 → -1, 1 → +1
-noisy_signals57 = {snr: add_awgn_noise(BPSK57, snr) for snr in range(EsN0_dB.size)} # Apply noise for each SNR level
-BER57 = np.zeros(5,dtype=float)
-for snr in range(EsN0_dB.size):
-    L, alpha, beta, gamma = BCJR(maxStar, Lu, 4*10**EsN0_dB[snr]/10,noisy_signals57[snr], Generator1, Generator2, recursive=False)
-    BER57[snr] = sum((L[0:length_u]>=0)!=u)/length_u
-print(BER57)
+QPSK75 = qpsk_mapping(v75)  # BPSK Mapping: 0 → -1, 1 → +1
+#noisy_signals57 = {snr: add_awgn_noise(BPSK57, snr) for snr in range(EsN0_dB.size)} # Apply noise for each SNR level
+#BER57 = np.zeros(5,dtype=float)
+#for snr in range(EsN0_dB.size):
+#    L, alpha, beta, gamma = BCJR(maxStar, Lu, 4*10**EsN0_dB[snr]/10,noisy_signals57[snr], Generator1, Generator2, recursive=False)
+#    BER57[snr] = sum((L[0:length_u]>=0)!=u)/length_u
+#print(BER57)
+print('v75[0:8]',v75[0:8])
+print('QPSK75[0:8]',QPSK75[0:8])
