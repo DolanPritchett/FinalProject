@@ -566,7 +566,7 @@ Code_R = 0.5
 
 
 
-H = [generate_complex_array(2, 2, np.sqrt(0.5)) for _ in range(1280)]
+H = [generate_complex_array(2, 2, np.sqrt(0.5)) for _ in range(640)]
 
 #Y = np.array([
 #    [-0.9-1.0j, -2.0-1.4j],
