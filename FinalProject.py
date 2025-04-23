@@ -465,6 +465,7 @@ def process_mimo_decoder(H, Y, Es, EbN0):
 
     Ld = np.zeros(Y.size * 2, dtype=float)
     Le = np.zeros(Y.size * 2, dtype=float)
+    print('Le.size:',Le.size)
     interleavedForMIMO = np.zeros(Y.size * 2, dtype=float)
 
     for outer_iter in range(2):  # Outer loop iterates 2 times
@@ -492,7 +493,7 @@ def process_mimo_decoder(H, Y, Es, EbN0):
         num_pccc = 2
 
         received_seq = deinterleavedLe
-        print('received_seq.size:',received_seq.size)
+        #print('received_seq.size:',received_seq.size)
         code_block_len = 1282  # 12(info)+2(term)
 
         
@@ -566,7 +567,7 @@ Code_R = 0.5
 
 
 
-H = [generate_complex_array(2, 2, np.sqrt(0.5)) for _ in range(640)]
+H = [generate_complex_array(2, 2, np.sqrt(0.5)) for _ in range(641)]
 
 #Y = np.array([
 #    [-0.9-1.0j, -2.0-1.4j],
@@ -581,7 +582,7 @@ H = [generate_complex_array(2, 2, np.sqrt(0.5)) for _ in range(640)]
 
 ''' do the modeling for the turbo'''
 intlv_pattern = np.random.permutation(np.arange(0, 1282))
-channel_interleaver_pattern = np.random.permutation(np.arange(0, 1280*2))
+channel_interleaver_pattern = np.random.permutation(np.arange(0, 1282*2))
 
 import matplotlib.pyplot as plt
 def add_awgn_noise(signal, EsN0_dB):
@@ -610,6 +611,7 @@ for snr in snr_values:
     Y = np.zeros((641, 2), dtype=complex)  # Initialize Y with zeros
     for i in range(641):
         Y[i] = (H[i] @ QPSK75[2*i:2*i+2].reshape(-1,1) + generate_complex_array(2, 1, np.sqrt(sigma2))).reshape(1,2)
+        Y = np.array(Y)
     Output = process_mimo_decoder(H, Y, Es, EbN0)
     CER = np.sum((L[0:length_u]>=0)!=u)/length_u
     print(f'CER for SNR {snr}: {CER}')
