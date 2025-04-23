@@ -492,7 +492,7 @@ def process_mimo_decoder(H, Y, Es, EbN0):
         num_pccc = 2
 
         received_seq = deinterleavedLe
-
+        print('received_seq.size:',received_seq.size)
         code_block_len = 1282  # 12(info)+2(term)
 
         
@@ -598,6 +598,7 @@ length_u = 1280
 u = np.random.randint(0, 2, length_u)
 
 v75 = encoder75(u)  # Encoder output
+print('v75.size:',v75.size)
 QPSK75 = qpsk_mapping(v75)  # BPSK Mapping: 0 → -1, 1 → +1
 snr_values = [0, 1, 2, 3, 4]
 for snr in snr_values:
@@ -606,8 +607,8 @@ for snr in snr_values:
 
     EsN0 = EbN0 - 10 * np.log10(Nr / (Code_R * Mt * Mc))  # in dB
     EsN0 = np.round(10 ** (EsN0 / 10), decimals=4)
-    Y = np.zeros((640, 2), dtype=complex)  # Initialize Y with zeros
-    for i in range(640):
+    Y = np.zeros((641, 2), dtype=complex)  # Initialize Y with zeros
+    for i in range(641):
         Y[i] = (H[i] @ QPSK75[2*i:2*i+2].reshape(-1,1) + generate_complex_array(2, 1, np.sqrt(sigma2))).reshape(1,2)
     Output = process_mimo_decoder(H, Y, Es, EbN0)
     CER = np.sum((L[0:length_u]>=0)!=u)/length_u
