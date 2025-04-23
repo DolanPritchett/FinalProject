@@ -468,7 +468,7 @@ def process_mimo_decoder(H, Y, Es, EbN0):
     print('Le.size:',Le.size)
     interleavedForMIMO = np.zeros(Y.size * 2, dtype=float)
 
-    for outer_iter in range(2):  # Outer loop iterates 2 times
+    for outer_iter in range(4):  # Outer loop iterates 2 times
         print(f"Outer iteration {outer_iter + 1}\n")
         for i in range(len(H)):
             matrix = H[i]
@@ -498,7 +498,7 @@ def process_mimo_decoder(H, Y, Es, EbN0):
 
         
 
-        num_iter = 2
+        num_iter = 8
 
         if punc_en:
             depunc_out = depuncturing(received_seq, code_block_len, num_pccc, punc_matrix)
@@ -613,7 +613,7 @@ for snr in snr_values:
         Y[i] = (H[i] @ QPSK75[2*i:2*i+2].reshape(-1,1) + generate_complex_array(2, 1, np.sqrt(sigma2))).reshape(1,2)
         Y = np.array(Y)
     Output = process_mimo_decoder(H, Y, Es, EbN0)
-    CER = np.sum((L[0:length_u]>=0)!=u)/length_u
+    CER = np.sum((Output[0:length_u]>=0)!=u)/length_u
     print(f'CER for SNR {snr}: {CER}')
 #noisy_signals57 = {snr: add_awgn_noise(BPSK57, snr) for snr in range(EsN0_dB.size)} # Apply noise for each SNR level
 #BER57 = np.zeros(5,dtype=float)
