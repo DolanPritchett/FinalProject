@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 def generate_complex_array(rows, cols, scale):
     real = np.random.normal(loc=0, scale=scale, size=(rows, cols))
@@ -647,7 +648,7 @@ v75 = encoder75(u)  # Encoder output
 print('v75.size:',v75.size)
 Intv75 = interleaver(channel_interleaver_pattern, v75)  # Interleaved output
 QPSK75 = qpsk_mapping(Intv75)  # BPSK Mapping: 0 → -1, 1 → +1
-snr_values = np.array([0.001, 0.005, .01, 0.05, .1, 0.5, 1, 5, 10, 50, 100])  # SNR values in dB
+snr_values = np.array([ 1, 1.5, 2, 2.5, 3, 3.5])  # SNR values in dB
 BER = np.zeros(len(snr_values), dtype=float)
 for j in range(snr_values.size):
     EbN0=snr_values[j]
@@ -668,12 +669,14 @@ for j in range(snr_values.size):
     #Output = 2*u-1
     BER[j] = np.sum((Output[0:length_u]>=0)!=u)/length_u
 print(f'BER: {BER}')
-#noisy_signals57 = {snr: add_awgn_noise(BPSK57, snr) for snr in range(EsN0_dB.size)} # Apply noise for each SNR level
-#BER57 = np.zeros(5,dtype=float)
-#for snr in range(EsN0_dB.size):
-#    L, alpha, beta, gamma = BCJR(maxStar, Lu, 4*10**EsN0_dB[snr]/10,noisy_signals57[snr], Generator1, Generator2, recursive=False)
-#    BER57[snr] = sum((L[0:length_u]>=0)!=u)/length_u
-#print(BER57)
-#print('v75[0:8]',v75[0:8])
-#print('QPSK75[0:8]',QPSK75[0:8])
+
+# Plot BER vs SNR
+plt.figure(figsize=(8, 6))
+plt.plot(snr_values, np.log10(BER), marker='o', linestyle='-', color='b', label='BER')
+plt.xlabel('SNR (Linear Domain)', fontsize=12)
+plt.ylabel('log10(BER)', fontsize=12)
+plt.title('BER vs SNR', fontsize=14)
+plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+plt.legend(fontsize=12)
+plt.show()
 #"""
