@@ -564,6 +564,11 @@ Mc = 2  # QPSK
 Mt = 2
 Nr = 2
 Code_R = 0.5
+"""
+# Test Case
+#encoder test
+intlv_pattern = np.array([12, 5, 9, 2, 10, 7, 1, 14, 6, 11, 3, 8, 4, 13])-1
+channel_interleaver_pattern = np.random.permutation(np.arange(0, 28))
 
 EbN0=2
 sigma2 = (Es / 2) * (Nr / (Code_R * Mt * Mc)) * (10 ** (-EbN0 / 10))
@@ -571,9 +576,34 @@ sigma2 = (Es / 2) * (Nr / (Code_R * Mt * Mc)) * (10 ** (-EbN0 / 10))
 EsN0 = EbN0 - 10 * np.log10(Nr / (Code_R * Mt * Mc))  # in dB
 EsN0 = np.round(10 ** (EsN0 / 10), decimals=4)
 
-intlv_pattern = np.array([2,  1,  7, 5,  3,  6,  8,  4])-1
-channel_interleaver_pattern = np.random.permutation(np.arange(0, 1282*2))
+InputSequence = np.array([1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0])
+OutputSequence = encoder75(InputSequence)
+InterleavedOutputSequence = interleaver(channel_interleaver_pattern, OutputSequence)
+print('OutputSequence:', OutputSequence)
+qpsk = qpsk_mapping(InterleavedOutputSequence)  # BPSK Mapping: 0 → -1, 1 → +1
+print('qpsk:', qpsk)
+H = [np.eye(2) for _ in range(7)]
+Y = np.zeros((7,2), dtype=complex)  # Initialize Y with zeros
+for i in range(7):
+    Y[i] = (H[i] @ qpsk[2*i:2*i+2].reshape(-1,1)).reshape(1,2) #+ generate_complex_array(2, 1, np.sqrt(sigma2))).reshape(1,2)
+    Y = np.array(Y)
+print('Y:', Y)
+Output = process_mimo_decoder(H, Y, Es, EbN0)
+print('Output:', Output)
 
+
+# decoder test
+
+
+EbN0=2
+sigma2 = (Es / 2) * (Nr / (Code_R * Mt * Mc)) * (10 ** (-EbN0 / 10))
+
+EsN0 = EbN0 - 10 * np.log10(Nr / (Code_R * Mt * Mc))  # in dB
+EsN0 = np.round(10 ** (EsN0 / 10), decimals=4)
+
+
+intlv_pattern = np.array([2,  1,  7, 5,  3,  6,  8,  4])-1
+channel_interleaver_pattern = np.array([3, 8, 14, 1, 5, 4, 10, 9, 11, 16, 15, 12, 13, 6, 7, 2])-1
 Y = np.array([
     [-0.9-1.0j, -2.0-1.4j],
     [-0.3-1.7j,  0.2+2.0j],
@@ -581,9 +611,27 @@ Y = np.array([
     [-0.4-1.3j, -0.3+0.8j]
 ])
 
-"""
-H = [generate_complex_array(2, 2, np.sqrt(0.5)) for _ in range(641)]
+H = [
+    np.array([[1.8+1.5j, 0.4-0.2j],
+              [1.0+0.3j, 2.2-0.9j]]),
 
+    np.array([[1.9-2.6j, -1.0+0.7j],
+              [1.0+0.9j, -0.2-0.7j]]),
+
+    np.array([[-0.1+2.3j, 0.4-1.5j],
+              [0.1+0.0j, 1.5-0.2j]]),
+
+    np.array([[0.8+1.5j, 0.1+1.5j],
+              [0.4+0.2j, 0.3+0.4j]])
+]
+
+Output = process_mimo_decoder(H, Y, Es, EbN0)
+print('Output:', Output)
+"""
+# MODELING FOR TURBO CODES
+H = [generate_complex_array(2, 2, np.sqrt(0.5)) for _ in range(641)]
+#H = [np.eye(2) for _ in range(641)]
+print('H[0]:',H[0])
 
 ''' do the modeling for the turbo'''
 intlv_pattern = np.random.permutation(np.arange(0, 1282))
@@ -593,24 +641,33 @@ import matplotlib.pyplot as plt
 
 length_u = 1280
 u = np.random.randint(0, 2, length_u)
+#u = np.ones(1280, dtype=int)  # Test with all ones
 
 v75 = encoder75(u)  # Encoder output
 print('v75.size:',v75.size)
-QPSK75 = qpsk_mapping(v75)  # BPSK Mapping: 0 → -1, 1 → +1
-snr_values = [0, 1, 2, 3, 4]
-for snr in snr_values:
-    EbN0=snr_values[snr]
+Intv75 = interleaver(channel_interleaver_pattern, v75)  # Interleaved output
+QPSK75 = qpsk_mapping(Intv75)  # BPSK Mapping: 0 → -1, 1 → +1
+snr_values = np.array([0.001, 0.005, .01, 0.05, .1, 0.5, 1, 5, 10, 50, 100])  # SNR values in dB
+BER = np.zeros(len(snr_values), dtype=float)
+for j in range(snr_values.size):
+    EbN0=snr_values[j]
     sigma2 = (Es / 2) * (Nr / (Code_R * Mt * Mc)) * (10 ** (-EbN0 / 10))
 
     EsN0 = EbN0 - 10 * np.log10(Nr / (Code_R * Mt * Mc))  # in dB
     EsN0 = np.round(10 ** (EsN0 / 10), decimals=4)
-    Y = np.zeros((641, 2), dtype=complex)  # Initialize Y with zeros
+    Y = np.zeros((641,2), dtype=complex)  # Initialize Y with zeros
     for i in range(641):
         Y[i] = (H[i] @ QPSK75[2*i:2*i+2].reshape(-1,1) + generate_complex_array(2, 1, np.sqrt(sigma2))).reshape(1,2)
         Y = np.array(Y)
     Output = process_mimo_decoder(H, Y, Es, EbN0)
-    CER = np.sum((Output[0:length_u]>=0)!=u)/length_u
-    print(f'CER for SNR {snr}: {CER}')
+    MappedOutput = qpsk_mapping(Output)  # BPSK Mapping: 0 → -1, 1 → +1
+    #print('MappedOutput[0:10]:',MappedOutput[0:10])
+    #print('Y[0:10]:',Y[0:10])
+    #print('output.size:',Output.size)
+    #print('u.size:',u.size)
+    #Output = 2*u-1
+    BER[j] = np.sum((Output[0:length_u]>=0)!=u)/length_u
+print(f'BER: {BER}')
 #noisy_signals57 = {snr: add_awgn_noise(BPSK57, snr) for snr in range(EsN0_dB.size)} # Apply noise for each SNR level
 #BER57 = np.zeros(5,dtype=float)
 #for snr in range(EsN0_dB.size):
@@ -619,4 +676,4 @@ for snr in snr_values:
 #print(BER57)
 #print('v75[0:8]',v75[0:8])
 #print('QPSK75[0:8]',QPSK75[0:8])
-"""
+#"""
