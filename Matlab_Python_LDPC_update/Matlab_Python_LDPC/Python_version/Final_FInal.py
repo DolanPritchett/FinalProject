@@ -643,7 +643,7 @@ for j in range(snr_values.size):
             Y = np.array(Y)
         
         Output = process_mimo_decoder(H, Y, Es, EbN0)
-        bit_err = sum(abs(Output-u))
+        bit_err = sum(abs((Output>0)[0:u.size()]-u))
         bec = bec + bit_err
         tot = tot + 1
         print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
@@ -727,7 +727,7 @@ for j in range(snr_values.size):
     #print('u.size:',u.size)
     #Output = 2*u-1
 
-        bit_err = sum(abs((Output>0)[0:u.size()]-u))
+        bit_err = sum(abs(Output-u))
         bec = bec + bit_err
         tot = tot + 1
         print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
