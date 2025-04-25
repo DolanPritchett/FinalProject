@@ -696,7 +696,7 @@ for j in range(snr_values.size):
     length_u = LDPC_INFOLEN
     bec = 0
     tot = 0
-    while(bec < 5 and tot < 100):
+    while(bec < 5 and tot < 1000):
 
         u = np.random.randint(0, 2, length_u)
         code = pbe.ldpc_encoder(address, u, LDPC_INFOLEN, LDPC_CODELEN)
@@ -719,11 +719,14 @@ for j in range(snr_values.size):
         bit_err = sum(abs(Output-u))
         bec = bec + bit_err
         tot = tot + 1
-
+        print(snr_values[j], 'tot = ', tot)
+        if (bit_err==0 and tot==1000):
+            break
     BER_LDPC[j] = bec / tot / len(u)
 print(f'BER_LDPC: {BER_LDPC}')
+print('BER_Turbo:', BER_Turbo)
 
-
+pbe.ldpc_clear(address)
 """
 SNR_dB = np.array([0.01, 0.05, 0.1, 0.5, 1, 2, 4])
 min_wec = 100
