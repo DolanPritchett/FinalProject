@@ -7,6 +7,7 @@ import copy
 import numpy.matlib
 from numpy import vectorize, arange
 import pybind_11_ldpc_setup as pbe
+import matplotlib.pyplot as plt
 
 def generate_complex_array(rows, cols, scale):
     real = np.random.normal(loc=0, scale=scale, size=(rows, cols))
@@ -219,7 +220,7 @@ def compute_ld_le(H, Y, La, Es, EbN0):
 def process_mimo_decoder_LDPC(H, Y, Es, EbN0):
     Ld = np.zeros(Y.size * 2, dtype=float)
     Le = np.zeros(Y.size * 2, dtype=float)
-    print('Le.size:',Le.size)
+    #print('Le.size:',Le.size)
     interleavedForMIMO = np.zeros(Y.size * 2, dtype=float)
 
     for outer_iter in range(4):  # Outer loop iterates 2 times
@@ -616,17 +617,10 @@ print('H[0]:',H[0])
 intlv_pattern = np.random.permutation(np.arange(0, 1282))
 channel_interleaver_pattern = np.random.permutation(np.arange(0, 1282*2))
 
-import matplotlib.pyplot as plt
 
-length_u = 1280
-u = np.random.randint(0, 2, length_u)
-#u = np.ones(1280, dtype=int)  # Test with all ones
 
-v75 = encoder75(u)  # Encoder output
-print('v75.size:',v75.size)
-Intv75 = interleaver(channel_interleaver_pattern, v75)  # Interleaved output
-QPSK75 = qpsk_mapping(Intv75)  # BPSK Mapping: 0 → -1, 1 → +1
-snr_values = np.array([ 1, 1.5, 2, 2.5, 3, 3.5])  # SNR values in dB
+
+snr_values = np.array([ 1, 2, 3, 3.5, 4])  # SNR values in dB
 BER_Turbo = np.zeros(len(snr_values), dtype=float)
 for j in range(snr_values.size):
     EbN0=snr_values[j]
@@ -634,12 +628,29 @@ for j in range(snr_values.size):
 
     EsN0 = EbN0 - 10 * np.log10(Nr / (Code_R * Mt * Mc))  # in dB
     EsN0 = np.round(10 ** (EsN0 / 10), decimals=4)
-    Y = np.zeros((641,2), dtype=complex)  # Initialize Y with zeros
-    for i in range(641):
-        Y[i] = (H[i] @ QPSK75[2*i:2*i+2].reshape(-1,1) + generate_complex_array(2, 1, np.sqrt(sigma2))).reshape(1,2)
-        Y = np.array(Y)
-    Output = process_mimo_decoder(H, Y, Es, EbN0)
-    MappedOutput = qpsk_mapping(Output)  # BPSK Mapping: 0 → -1, 1 → +1
+    length_u = 1280
+    bec = 0
+    tot = 0
+    while(bec < 5 and tot < 1000):
+        Y = np.zeros((641,2), dtype=complex) 
+        u = np.random.randint(0, 2, length_u)
+        v75 = encoder75(u)  # Encoder output
+        #print('v75.size:',v75.size)
+        Intv75 = interleaver(channel_interleaver_pattern, v75)  # Interleaved output
+        QPSK75 = qpsk_mapping(Intv75)  # BPSK Mapping: 0 → -1, 1 → +1 # Initialize Y with zeros
+        for i in range(641):
+            Y[i] = (H[i] @ QPSK75[2*i:2*i+2].reshape(-1,1) + generate_complex_array(2, 1, np.sqrt(sigma2))).reshape(1,2)
+            Y = np.array(Y)
+        
+        Output = process_mimo_decoder(H, Y, Es, EbN0)
+        bit_err = sum(abs(Output-u))
+        bec = bec + bit_err
+        tot = tot + 1
+        print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
+        if (bit_err==0 and tot==2):
+            break
+    BER_Turbo[j] = bec / tot / len(u)
+    #MappedOutput = qpsk_mapping(Output)  # BPSK Mapping: 0 → -1, 1 → +1
     #print('MappedOutput[0:10]:',MappedOutput[0:10])
     #print('Y[0:10]:',Y[0:10])
     #print('output.size:',Output.size)
@@ -685,7 +696,7 @@ channel_interleaver_pattern = np.random.permutation(np.arange(0, LDPC_CODELEN))
 
 import matplotlib.pyplot as plt
 
-snr_values = np.array([ 1, 2, 3, 4, 5, 6])  # SNR values in dB
+snr_values = np.array([ 1, 2, 3, 3.5, 4])  # SNR values in dB
 BER_LDPC = np.zeros(len(snr_values), dtype=float)
 for j in range(snr_values.size):
     EbN0=snr_values[j]
@@ -719,12 +730,27 @@ for j in range(snr_values.size):
         bit_err = sum(abs(Output-u))
         bec = bec + bit_err
         tot = tot + 1
-        print(snr_values[j], 'tot = ', tot)
-        if (bit_err==0 and tot==1000):
+        print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
+        if (bit_err==0 and tot==2):
             break
     BER_LDPC[j] = bec / tot / len(u)
 print(f'BER_LDPC: {BER_LDPC}')
 print('BER_Turbo:', BER_Turbo)
+
+plt.figure(figsize=(10, 6))
+plt.plot(snr_values, BER_LDPC, marker='o', label='BER LDPC', color='blue')
+plt.plot(snr_values, BER_Turbo, marker='s', label='BER Turbo', color='red')
+
+plt.yscale('log')  # Set y-axis to logarithmic scale
+plt.xlabel('SNR (dB)', fontsize=14)
+plt.ylabel('Bit Error Rate (BER)', fontsize=14)
+plt.title('BER vs SNR for LDPC and Turbo Codes', fontsize=16)
+plt.grid(True, which="both", linestyle='--', linewidth=0.5)
+plt.legend(fontsize=12)
+plt.tight_layout()
+
+# Show the plot
+plt.show()
 
 pbe.ldpc_clear(address)
 """
