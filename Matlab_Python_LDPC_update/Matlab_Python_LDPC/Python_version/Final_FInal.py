@@ -507,7 +507,7 @@ def process_mimo_decoder(H, Y, Es, EbN0):
 
     Ld = np.zeros(Y.size * 2, dtype=float)
     Le = np.zeros(Y.size * 2, dtype=float)
-    print('Le.size:',Le.size)
+    #print('Le.size:',Le.size)
     interleavedForMIMO = np.zeros(Y.size * 2, dtype=float)
 
     for outer_iter in range(4):  # Outer loop iterates 2 times
@@ -523,7 +523,7 @@ def process_mimo_decoder(H, Y, Es, EbN0):
         deinterleavedLd = de_interleaver(channel_interleaver_pattern, Ld)
         deinterleavedLe = de_interleaver(channel_interleaver_pattern, Le)
 
-        print("MIMO detector output extrinsic LLR(de-interleaved, La2):\n", deinterleavedLe)
+        #print("MIMO detector output extrinsic LLR(de-interleaved, La2):\n", deinterleavedLe)
 
         srcc_en = True
         max_log_map_en = False
@@ -643,11 +643,11 @@ for j in range(snr_values.size):
             Y = np.array(Y)
         
         Output = process_mimo_decoder(H, Y, Es, EbN0)
-        bit_err = sum(abs((Output>0)[0:u.size()]-u))
+        bit_err = sum(abs((Output>0)[0:u.size]-u))
         bec = bec + bit_err
         tot = tot + 1
         print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
-        if (bit_err==0 and tot==2):
+        if (bit_err==0 and tot==1000):
             break
     BER_Turbo[j] = bec / tot / len(u)
     #MappedOutput = qpsk_mapping(Output)  # BPSK Mapping: 0 → -1, 1 → +1
@@ -694,7 +694,7 @@ H = [generate_complex_array(2, 2, np.sqrt(0.5)) for _ in range(int(LDPC_CODELEN/
 #intlv_pattern = np.random.permutation(np.arange(0, 1282))
 channel_interleaver_pattern = np.random.permutation(np.arange(0, LDPC_CODELEN))
 
-import matplotlib.pyplot as plt
+
 
 snr_values = np.array([ 1, 2, 3, 3.5, 4])  # SNR values in dB
 BER_LDPC = np.zeros(len(snr_values), dtype=float)
@@ -731,7 +731,7 @@ for j in range(snr_values.size):
         bec = bec + bit_err
         tot = tot + 1
         print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
-        if (bit_err==0 and tot==2):
+        if (bit_err==0 and tot==1000):
             break
     BER_LDPC[j] = bec / tot / len(u)
 print(f'BER_LDPC: {BER_LDPC}')
