@@ -646,7 +646,7 @@ for j in range(snr_values.size):
     #print('u.size:',u.size)
     #Output = 2*u-1
     BER_Turbo[j] = np.sum((Output[0:length_u]>=0)!=u)/length_u
-print(f'BER: {BER}')
+print(f'BER: {BER_Turbo}')
 
 # Plot BER vs SNR
 
@@ -684,13 +684,7 @@ H = [generate_complex_array(2, 2, np.sqrt(0.5)) for _ in range(int(LDPC_CODELEN/
 channel_interleaver_pattern = np.random.permutation(np.arange(0, LDPC_CODELEN))
 
 import matplotlib.pyplot as plt
-length_u = LDPC_INFOLEN
-u = np.random.randint(0, 2, length_u)
-code = pbe.ldpc_encoder(address, u, LDPC_INFOLEN, LDPC_CODELEN)
-code = np.array(code)
 
-Intcode = interleaver(channel_interleaver_pattern, code)  # Interleaved output
-QPSKcode = qpsk_mapping(Intcode)  # BPSK Mapping: 0 → -1, 1 → +1
 snr_values = np.array([ 1, 2, 3, 4, 5, 6])  # SNR values in dB
 BER_LDPC = np.zeros(len(snr_values), dtype=float)
 for j in range(snr_values.size):
@@ -699,30 +693,37 @@ for j in range(snr_values.size):
 
     EsN0 = EbN0 - 10 * np.log10(Nr / (Code_R * Mt * Mc))  # in dB
     EsN0 = np.round(10 ** (EsN0 / 10), decimals=4)
-    Y = np.zeros((int(LDPC_CODELEN/4),2), dtype=complex)  # Initialize Y with zeros
-    for i in range(int(LDPC_CODELEN/4)):
-        Y[i] = (H[i] @ QPSKcode[2*i:2*i+2].reshape(-1,1) + generate_complex_array(2, 1, np.sqrt(sigma2))).reshape(1,2)
-        Y = np.array(Y)
-    Output = process_mimo_decoder_LDPC(H, Y, Es, EbN0)
+    length_u = LDPC_INFOLEN
+    bec = 0
+    tot = 0
+    while(bec < 5 and tot < 100):
+
+        u = np.random.randint(0, 2, length_u)
+        code = pbe.ldpc_encoder(address, u, LDPC_INFOLEN, LDPC_CODELEN)
+        code = np.array(code)
+
+        Intcode = interleaver(channel_interleaver_pattern, code)  # Interleaved output
+        QPSKcode = qpsk_mapping(Intcode)  # BPSK Mapping: 0 → -1, 1 → +1
+        Y = np.zeros((int(LDPC_CODELEN/4),2), dtype=complex)  # Initialize Y with zeros
+        for i in range(int(LDPC_CODELEN/4)):
+            Y[i] = (H[i] @ QPSKcode[2*i:2*i+2].reshape(-1,1) + generate_complex_array(2, 1, np.sqrt(sigma2))).reshape(1,2)
+            Y = np.array(Y)
+        Output = process_mimo_decoder_LDPC(H, Y, Es, EbN0)
     #MappedOutput = qpsk_mapping(Output)  # BPSK Mapping: 0 → -1, 1 → +1
     #print('MappedOutput[0:10]:',MappedOutput[0:10])
     #print('Y[0:10]:',Y[0:10])
     #print('output.size:',Output.size)
     #print('u.size:',u.size)
     #Output = 2*u-1
-    BER_LDPC[j] = np.sum((Output[0:length_u])!=u)/length_u
-print(f'BER: {BER}')
 
-# Plot BER vs SNR
-plt.figure(figsize=(8, 6))
-plt.plot(snr_values, np.log10(BER), marker='o', linestyle='-', color='b', label='BER')
-plt.xlabel('SNR (Linear Domain)', fontsize=12)
-plt.ylabel('log10(BER)', fontsize=12)
-plt.title('BER vs SNR', fontsize=14)
-plt.grid(True, which='both', linestyle='--', linewidth=0.5)
-plt.legend(fontsize=12)
-plt.show()
-pbe.ldpc_clear(address)
+        bit_err = sum(abs(Output-u))
+        bec = bec + bit_err
+        tot = tot + 1
+
+    BER_LDPC[j] = bec / tot / len(u)
+print(f'BER_LDPC: {BER_LDPC}')
+
+
 """
 SNR_dB = np.array([0.01, 0.05, 0.1, 0.5, 1, 2, 4])
 min_wec = 100
