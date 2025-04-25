@@ -631,7 +631,7 @@ for j in range(snr_values.size):
     length_u = 1280
     bec = 0
     tot = 0
-    while(bec < 5 and tot < 1000):
+    while(bec < 5 and tot < 1000 and last_tot < 15):
         Y = np.zeros((641,2), dtype=complex) 
         u = np.random.randint(0, 2, length_u)
         v75 = encoder75(u)  # Encoder output
@@ -649,6 +649,7 @@ for j in range(snr_values.size):
         print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
         if (bit_err==0 and tot==1000):
             break
+    last_tot = tot
     BER_Turbo[j] = bec / tot / len(u)
     #MappedOutput = qpsk_mapping(Output)  # BPSK Mapping: 0 → -1, 1 → +1
     #print('MappedOutput[0:10]:',MappedOutput[0:10])
@@ -707,7 +708,7 @@ for j in range(snr_values.size):
     length_u = LDPC_INFOLEN
     bec = 0
     tot = 0
-    while(bec < 5 and tot < 1000):
+    while(bec < 5 and tot < 1000 and last_tot_LDPC < 15):
 
         u = np.random.randint(0, 2, length_u)
         code = pbe.ldpc_encoder(address, u, LDPC_INFOLEN, LDPC_CODELEN)
@@ -720,19 +721,13 @@ for j in range(snr_values.size):
             Y[i] = (H[i] @ QPSKcode[2*i:2*i+2].reshape(-1,1) + generate_complex_array(2, 1, np.sqrt(sigma2))).reshape(1,2)
             Y = np.array(Y)
         Output = process_mimo_decoder_LDPC(H, Y, Es, EbN0)
-    #MappedOutput = qpsk_mapping(Output)  # BPSK Mapping: 0 → -1, 1 → +1
-    #print('MappedOutput[0:10]:',MappedOutput[0:10])
-    #print('Y[0:10]:',Y[0:10])
-    #print('output.size:',Output.size)
-    #print('u.size:',u.size)
-    #Output = 2*u-1
-
         bit_err = sum(abs(Output-u))
         bec = bec + bit_err
         tot = tot + 1
         print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
         if (bit_err==0 and tot==1000):
             break
+    last_tot_LDPC = tot
     BER_LDPC[j] = bec / tot / len(u)
 print(f'BER_LDPC: {BER_LDPC}')
 print('BER_Turbo:', BER_Turbo)
