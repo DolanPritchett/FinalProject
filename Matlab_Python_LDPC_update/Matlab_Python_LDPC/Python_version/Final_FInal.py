@@ -620,7 +620,7 @@ channel_interleaver_pattern = np.random.permutation(np.arange(0, 1282*2))
 
 
 
-snr_values = np.array([ 1, 2, 3, 3.5, 4])  # SNR values in dB
+snr_values = np.array([ 1, 2, 2.5, 3, 3.5, 4])  # SNR values in dB
 BER_Turbo = np.zeros(len(snr_values), dtype=float)
 last_tot = 0
 for j in range(snr_values.size):
@@ -692,7 +692,7 @@ channel_interleaver_pattern = np.random.permutation(np.arange(0, LDPC_CODELEN))
 
 
 
-snr_values = np.array([ 1, 2, 3, 3.5, 4])  # SNR values in dB
+snr_values = np.array([ 1, 2, 2.5, 3, 3.5, 4])  # SNR values in dB
 BER_LDPC = np.zeros(len(snr_values), dtype=float)
 last_tot_LDPC = 0
 for j in range(snr_values.size):
