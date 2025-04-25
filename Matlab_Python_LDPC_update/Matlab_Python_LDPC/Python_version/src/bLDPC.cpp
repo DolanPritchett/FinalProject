@@ -5,6 +5,7 @@
 #include <bitset>
 using namespace std;
 #include <stdio.h>
+#include <cmath>
 
 qcldpc::qcldpc(int Hbase_rows, int Hbase_cols, int cpm_size, int q)
 {
@@ -111,7 +112,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	double MIN = 1E-15;
 	int decodingflag = 0;
 
-	vector<double>  pn0(cols);  //ÐÅµÀ´«µÝ¸ø±äÁ¿½ÚµãµÄ¸ÅÂÊ
+	vector<double>  pn0(cols);  //ï¿½Åµï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ä¸ï¿½ï¿½ï¿½
 	vector<double>  pn1(cols);
 	vector<double>  Fn(cols);
 
@@ -126,7 +127,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 	for (int i = 0; i < cols; i++)
 	{
-		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 		if (pn0[i] < MIN)
 			pn0[i] = MIN;
 		pn1[i] = 1 - pn0[i];
@@ -137,13 +138,13 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
 	for (int i = 0; i < ROWS; i++)
 	{
 		ps = M.rhead[i];
 		while (ps != NULL)
 		{
-			//±äÁ¿½Úµã´«ÏòÐ£Ñé½ÚµãµÄ³õÊ¼ÏûÏ¢q[i][j]=Pi(0)
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Úµã´«ï¿½ï¿½Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½Ï¢q[i][j]=Pi(0)
 			ps->qmn0 = pn0[ps->col_num];
 			ps->qmn1 = pn1[ps->col_num];
 			ps->Zmn = Fn[ps->col_num];
@@ -161,7 +162,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 			qr_old[idx] = 0;
 		else
 			qr_old[idx] = 1;
-		ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+		ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 		idx++;
 	}
 
@@ -180,7 +181,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 			if (Contained(checkNodeSelected, i))
 			{
 				ps = M.rhead[i];
-				for (int j = 1; j < qrN + 1; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+				for (int j = 1; j < qrN + 1; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 				{
 					for (int m = 0; m < Usize; m++)
 					{
@@ -233,7 +234,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 				//	for (int m = 0; m < 17; m++)
 				//	{
 				//	    qs->Lt_extr *= 1;
-				//		qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+				//		qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 				//	}
 				//}
 				//else
@@ -243,7 +244,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 				//	for (int m = 0; m < 17; m++)
 				//	{
 				//		qs->Lt_extr *= 1;
-				//		qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+				//		qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 				//	}
 				//}
 			}
@@ -269,7 +270,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 						ts = ts->right;
 					}
 
-					//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+					//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 					qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 					if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 					if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -280,7 +281,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 
 
-		//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (int j = 0; j < cols; j++)
 		{
 			ps = M.chead[j];
@@ -323,7 +324,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 				else
 					vhat[j] = 0;
 
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 			}
 		}
 
@@ -332,7 +333,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 		while (ps != NULL)
 		{
 			qr_new[idx2] = vhat[ps->col_num];
-			ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+			ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 			idx2++;
 		}
 
@@ -370,13 +371,13 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 		//judgeFlag = judgeZero(vhat);
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-		   //decodingflag = 1;//ÒëÂëÕýÈ·
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		   //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 			decodingflag++;
 			//if(decodingflag==2)
 			break;
 		}
-	}/*********Íê³ÉÒ»Ö¡µÄÒëÂë********/
+	}/*********ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 
 	 //cout << "SuccConceutive = " << SuccConceutive << endl;
 	 //cout << "judgeFlag = " << judgeFlag << endl;
@@ -403,13 +404,13 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 if (Contained(checkNodeSelected, i))
 	 {
 	 ps = M.rhead[i];
-	 for (int j = 1; j < 18; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+	 for (int j = 1; j < 18; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 	 {
 	 for (int m = 0; m < 256; m++)
 	 {
 	 U[m][j] = U[m][j - 1] * ps->qmn0 + U[m ^ hm[j - 1]][j - 1] * ps->qmn1;
 	 }
-	 ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 	 }
 	 qs = M.rhead[i];
 	 for (int m = 0; m < 17; m++)
@@ -432,7 +433,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 }
 	 //cout << qs->Lt_extr << " ";
 	 //cout << log(qs->outp0 / qs->outp1) << " ";
-	 qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 	 }//cout<<endl;
 	 //cout << endl;
 
@@ -447,7 +448,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 {
 	 double Tmn = 1.0;
 	 double min = 100000.0;
-	 ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+	 ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 while (ts != NULL)
 	 {
 	 if ((ts->col_num) != (qs->col_num))
@@ -462,7 +463,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 //if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 	 //if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 	 //qs->Lt_extr = Tmn;
-	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	 if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 	 if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -477,11 +478,11 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 
 
-	 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	 for (j = 0; j < cols; j++)//147
 	 {
 	 ps = M.chead[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -520,7 +521,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 else
 	 vhat[j] = 0;
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 } // for(j=0;j<cols;j++)
@@ -530,8 +531,8 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 //judgeFlag = judgeZero(vhat);
 
 	 if (judgeFlag)
-	 {  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-	 //decodingflag = 1;//ÒëÂëÕýÈ·
+	 {  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 	 decodingflag++;
 	 //if(decodingflag==2)
 	 break;
@@ -568,7 +569,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 {
 	 double Tmn = 1.0;
 	 double min = 100000.0;
-	 ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+	 ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 while (ts != NULL)
 	 {
 	 if ((ts->col_num) != (qs->col_num))
@@ -579,7 +580,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 }
 	 ts = ts->right;
 	 }
-	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	 if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 	 if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -593,13 +594,13 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 
 
-	 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	 for (j = 0; j < cols; j++)//147
 	 {
 	 if (!Contained(qrVNode, j))
 	 {
 	 ps = M.chead[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -638,7 +639,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 else
 	 vhat[j] = 0;
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 }
@@ -648,7 +649,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 {
 	 ps = M.chead[j];
 	 vhat[qrVNode[j]] = qr_new[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -657,7 +658,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 else
 	 ps->Zmn = -MAXLLR2;
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 }
@@ -666,8 +667,8 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 //judgeFlag = judgeZero(vhat);
 
 	 if (judgeFlag)
-	 {  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-	 //decodingflag = 1;//ÒëÂëÕýÈ·
+	 {  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 	 decodingflag++;
 	 //if(decodingflag==2)
 	 break;
@@ -702,7 +703,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 {
 	 double Tmn = 1.0;
 	 double min = 100000.0;
-	 ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+	 ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 while (ts != NULL)
 	 {
 	 if ((ts->col_num) != (qs->col_num))
@@ -713,7 +714,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 }
 	 ts = ts->right;
 	 }
-	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	 if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 	 if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -727,13 +728,13 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 
 
-	 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	 for (j = 0; j < cols; j++)//147
 	 {
 	 if (!Contained(qrVNode, j))
 	 {
 	 ps = M.chead[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -772,7 +773,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 else
 	 vhat[j] = 0;
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 }
@@ -782,7 +783,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 {
 	 ps = M.chead[j];
 	 vhat[qrVNode[j]] = qr_most[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -791,7 +792,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 else
 	 ps->Zmn = -MAXLLR2;
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 }
@@ -800,8 +801,8 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 //judgeFlag = judgeZero(vhat);
 
 	 if (judgeFlag)
-	 {  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-	 //decodingflag = 1;//ÒëÂëÕýÈ·
+	 {  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 	 decodingflag++;
 	 //if(decodingflag==2)
 	 break;
@@ -839,7 +840,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 if (qs->Lt_extr < -MAXLLR2)
 	 qs->Lt_extr = -MAXLLR2;
 
-	 qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 	 }//cout<<endl;
 	 //cout << endl;
 
@@ -854,7 +855,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 {
 	 double Tmn = 1.0;
 	 double min = 100000.0;
-	 ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+	 ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 while (ts != NULL)
 	 {
 	 if ((ts->col_num) != (qs->col_num))
@@ -866,7 +867,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 ts = ts->right;
 	 }
 
-	 //qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	 //qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	 if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 	 if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -881,11 +882,11 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 
 
-	 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	 for (j = 0; j < cols; j++)//147
 	 {
 	 ps = M.chead[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -927,7 +928,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 } // for(j=0;j<cols;j++)
@@ -937,8 +938,8 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	 //judgeFlag = judgeZero(vhat);
 
 	 if (judgeFlag)
-	 {  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-	 //decodingflag = 1;//ÒëÂëÕýÈ·
+	 {  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 	 decodingflag++;
 	 //if(decodingflag==2)
 	 break;
@@ -972,7 +973,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 					{
 						double Tmn = 1.0;
 						double min = 100000.0;
-						ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+						ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 						while (ts != NULL)
 						{
 							if ((ts->col_num) != (qs->col_num))
@@ -984,7 +985,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 							ts = ts->right;
 						}
 
-						//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+						//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 						qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 						if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 						if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -997,13 +998,13 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 
 
-			 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+			 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 			for (int j = 0; j < cols; j++)
 			{
 				if (!Contained(qrVNode, j))
 				{
 					ps = M.chead[j];
-					while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+					while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 					{
 						double prod_rmn = 0.0;
 
@@ -1042,7 +1043,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 						else
 							vhat[j] = 0;
 
-						ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+						ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 
 					}//cout<<endl;//end- while(qs!=NULL)
 				}
@@ -1052,7 +1053,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 			{
 				ps = M.chead[qrVNode[j]];
 				vhat[qrVNode[j]] = qr_new[j];
-				while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+				while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 				{
 					double prod_rmn = 0.0;
 
@@ -1061,7 +1062,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 					else
 						ps->Zmn = -MAXLLR2;
 
-					ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+					ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 
 				}//cout<<endl;//end- while(qs!=NULL)
 			}
@@ -1070,8 +1071,8 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 			//judgeFlag = judgeZero(vhat);
 
 			if (judgeFlag)
-			{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-			   //decodingflag = 1;//ÒëÂëÕýÈ·
+			{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			   //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 				decodingflag++;
 				break;
 			}
@@ -1104,7 +1105,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 					{
 						double Tmn = 1.0;
 						double min = 100000.0;
-						ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+						ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 						while (ts != NULL)
 						{
 							if ((ts->col_num) != (qs->col_num))
@@ -1115,7 +1116,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 							}
 							ts = ts->right;
 						}
-						//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+						//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 						qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 						if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 						if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -1129,13 +1130,13 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 
 
-			 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+			 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 			for (int j = 0; j < cols; j++)//147
 			{
 				if (!Contained(qrVNode, j))
 				{
 					ps = M.chead[j];
-					while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+					while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 					{
 						double prod_rmn = 0.0;
 
@@ -1174,7 +1175,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 						else
 							vhat[j] = 0;
 
-						ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+						ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 
 					}//cout<<endl;//end- while(qs!=NULL)
 				}
@@ -1184,7 +1185,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 			{
 				ps = M.chead[qrVNode[j]];
 				vhat[qrVNode[j]] = qr_most[j];
-				while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+				while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 				{
 					double prod_rmn = 0.0;
 
@@ -1193,7 +1194,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 					else
 						ps->Zmn = -MAXLLR2;
 
-					ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+					ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 
 				}//cout<<endl;//end- while(qs!=NULL)
 			}
@@ -1252,7 +1253,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 					{
 						double Tmn = 1.0;
 						double min = 100000.0;
-						ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+						ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 						while (ts != NULL)
 						{
 							if ((ts->col_num) != (qs->col_num))
@@ -1264,7 +1265,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 							}
 							ts = ts->right;
 						}
-						////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+						////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 						qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 						if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 						if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -1279,11 +1280,11 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 
 
-			 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+			 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 			for (int j = 0; j < cols; j++)//147
 			{
 				ps = M.chead[j];
-				while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+				while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 				{
 					double prod_rmn = 0.0;
 
@@ -1325,7 +1326,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 
 
-					ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+					ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 
 				}//cout<<endl;//end- while(qs!=NULL)
 			} // for(j=0;j<cols;j++)
@@ -1335,8 +1336,8 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 			//judgeFlag = judgeZero(vhat);
 
 			if (judgeFlag)
-			{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-			   //decodingflag = 1;//ÒëÂëÕýÈ·
+			{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			   //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 				decodingflag++;
 				//if(decodingflag==2)
 				break;
@@ -1405,7 +1406,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	double MIN = 1E-15;
 	int decodingflag = 0;
 
-	vector<double>  pn0(cols);  //ÐÅµÀ´«µÝ¸ø±äÁ¿½ÚµãµÄ¸ÅÂÊ
+	vector<double>  pn0(cols);  //ï¿½Åµï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ä¸ï¿½ï¿½ï¿½
 	vector<double>  pn1(cols);
 	vector<double>  Fn(cols);
 
@@ -1420,7 +1421,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 	for (int i = 0; i < cols; i++)
 	{
-		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 		if (pn0[i] < MIN)
 			pn0[i] = MIN;
 		pn1[i] = 1 - pn0[i];
@@ -1431,13 +1432,13 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
 	for (int i = 0; i < ROWS; i++)
 	{
 		ps = M.rhead[i];
 		while (ps != NULL)
 		{
-			//±äÁ¿½Úµã´«ÏòÐ£Ñé½ÚµãµÄ³õÊ¼ÏûÏ¢q[i][j]=Pi(0)
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Úµã´«ï¿½ï¿½Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½Ï¢q[i][j]=Pi(0)
 			ps->qmn0 = pn0[ps->col_num];
 			ps->qmn1 = pn1[ps->col_num];
 			ps->Zmn = Fn[ps->col_num];
@@ -1457,7 +1458,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 				qr_old[i][idx] = 0;
 			else
 				qr_old[i][idx] = 1;
-			ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+			ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 			idx++;
 		}
 	}
@@ -1494,7 +1495,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 			if (Contained(checkNodeSelected, i))
 			{
 				ps = M.rhead[i];
-				for (int j = 1; j < qrN + 1; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+				for (int j = 1; j < qrN + 1; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 				{
 					for (int m = 0; m < Usize; m++)
 					{
@@ -1547,7 +1548,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 				//	for (int m = 0; m < 17; m++)
 				//	{
 				//	    qs->Lt_extr *= 1;
-				//		qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+				//		qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 				//	}
 				//}
 				//else
@@ -1557,7 +1558,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 				//	for (int m = 0; m < 17; m++)
 				//	{
 				//		qs->Lt_extr *= 1;
-				//		qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+				//		qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 				//	}
 				//}
 			}
@@ -1598,7 +1599,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 					if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 					if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 					qs->Lt_extr = Tmn;
-					//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+					//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 					//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 					if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 					if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -1609,7 +1610,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-		//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (int j = 0; j < cols; j++)
 		{
 			ps = M.chead[j];
@@ -1652,7 +1653,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 				else
 					vhat[j] = 0;
 
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 			}
 		}
 
@@ -1663,7 +1664,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 			while (ps != NULL)
 			{
 				qr_new[j][idx2] = vhat[ps->col_num];
-				ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+				ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 				idx2++;
 			}
 		}
@@ -1725,13 +1726,13 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 		//judgeFlag = judgeZero(vhat);
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-		   //decodingflag = 1;//ÒëÂëÕýÈ·
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		   //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 			decodingflag++;
 			//if(decodingflag==2)
 			break;
 		}
-	}/*********Íê³ÉÒ»Ö¡µÄÒëÂë********/
+	}/*********ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 
 	 /*cout << "SuccConceutive = " << SuccConceutive << endl;
 	 cout << "judgeFlag = " << judgeFlag << endl;*/
@@ -1758,13 +1759,13 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 if (Contained(checkNodeSelected, i))
 	 {
 	 ps = M.rhead[i];
-	 for (int j = 1; j < 18; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+	 for (int j = 1; j < 18; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 	 {
 	 for (int m = 0; m < 256; m++)
 	 {
 	 U[m][j] = U[m][j - 1] * ps->qmn0 + U[m ^ hm[j - 1]][j - 1] * ps->qmn1;
 	 }
-	 ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 	 }
 	 qs = M.rhead[i];
 	 for (int m = 0; m < 17; m++)
@@ -1787,7 +1788,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 }
 	 //cout << qs->Lt_extr << " ";
 	 //cout << log(qs->outp0 / qs->outp1) << " ";
-	 qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 	 }//cout<<endl;
 	 //cout << endl;
 
@@ -1802,7 +1803,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 {
 	 double Tmn = 1.0;
 	 double min = 100000.0;
-	 ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+	 ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 while (ts != NULL)
 	 {
 	 if ((ts->col_num) != (qs->col_num))
@@ -1817,7 +1818,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 //if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 	 //if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 	 //qs->Lt_extr = Tmn;
-	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	 if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 	 if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -1832,11 +1833,11 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-	 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	 for (j = 0; j < cols; j++)//147
 	 {
 	 ps = M.chead[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -1875,7 +1876,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 else
 	 vhat[j] = 0;
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 } // for(j=0;j<cols;j++)
@@ -1885,8 +1886,8 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 //judgeFlag = judgeZero(vhat);
 
 	 if (judgeFlag)
-	 {  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-	 //decodingflag = 1;//ÒëÂëÕýÈ·
+	 {  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 	 decodingflag++;
 	 //if(decodingflag==2)
 	 break;
@@ -1923,7 +1924,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 {
 	 double Tmn = 1.0;
 	 double min = 100000.0;
-	 ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+	 ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 while (ts != NULL)
 	 {
 	 if ((ts->col_num) != (qs->col_num))
@@ -1934,7 +1935,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 }
 	 ts = ts->right;
 	 }
-	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	 if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 	 if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -1948,13 +1949,13 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-	 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	 for (j = 0; j < cols; j++)//147
 	 {
 	 if (!Contained(qrVNode, j))
 	 {
 	 ps = M.chead[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -1993,7 +1994,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 else
 	 vhat[j] = 0;
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 }
@@ -2003,7 +2004,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 {
 	 ps = M.chead[j];
 	 vhat[qrVNode[j]] = qr_new[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -2012,7 +2013,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 else
 	 ps->Zmn = -MAXLLR2;
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 }
@@ -2021,8 +2022,8 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 //judgeFlag = judgeZero(vhat);
 
 	 if (judgeFlag)
-	 {  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-	 //decodingflag = 1;//ÒëÂëÕýÈ·
+	 {  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 	 decodingflag++;
 	 //if(decodingflag==2)
 	 break;
@@ -2057,7 +2058,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 {
 	 double Tmn = 1.0;
 	 double min = 100000.0;
-	 ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+	 ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 while (ts != NULL)
 	 {
 	 if ((ts->col_num) != (qs->col_num))
@@ -2068,7 +2069,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 }
 	 ts = ts->right;
 	 }
-	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	 if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 	 if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -2082,13 +2083,13 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-	 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	 for (j = 0; j < cols; j++)//147
 	 {
 	 if (!Contained(qrVNode, j))
 	 {
 	 ps = M.chead[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -2127,7 +2128,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 else
 	 vhat[j] = 0;
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 }
@@ -2137,7 +2138,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 {
 	 ps = M.chead[j];
 	 vhat[qrVNode[j]] = qr_most[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -2146,7 +2147,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 else
 	 ps->Zmn = -MAXLLR2;
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 }
@@ -2155,8 +2156,8 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 //judgeFlag = judgeZero(vhat);
 
 	 if (judgeFlag)
-	 {  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-	 //decodingflag = 1;//ÒëÂëÕýÈ·
+	 {  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 	 decodingflag++;
 	 //if(decodingflag==2)
 	 break;
@@ -2194,7 +2195,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 if (qs->Lt_extr < -MAXLLR2)
 	 qs->Lt_extr = -MAXLLR2;
 
-	 qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 	 }//cout<<endl;
 	 //cout << endl;
 
@@ -2209,7 +2210,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 {
 	 double Tmn = 1.0;
 	 double min = 100000.0;
-	 ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+	 ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 while (ts != NULL)
 	 {
 	 if ((ts->col_num) != (qs->col_num))
@@ -2221,7 +2222,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 ts = ts->right;
 	 }
 
-	 //qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	 //qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	 if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 	 if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -2236,11 +2237,11 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-	 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	 for (j = 0; j < cols; j++)//147
 	 {
 	 ps = M.chead[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -2282,7 +2283,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 } // for(j=0;j<cols;j++)
@@ -2292,8 +2293,8 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 //judgeFlag = judgeZero(vhat);
 
 	 if (judgeFlag)
-	 {  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-	 //decodingflag = 1;//ÒëÂëÕýÈ·
+	 {  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 	 decodingflag++;
 	 //if(decodingflag==2)
 	 break;
@@ -2339,7 +2340,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 {
 	 double Tmn = 1.0;
 	 double min = 100000.0;
-	 ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+	 ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 while (ts != NULL)
 	 {
 	 if ((ts->col_num) != (qs->col_num))
@@ -2352,7 +2353,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 ts = ts->right;
 	 }
 
-	 //ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	 if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 	 if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -2365,13 +2366,13 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-	 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	 for (int j = 0; j < cols; j++)
 	 {
 	 if (!Contained(qrVNode, j))
 	 {
 	 ps = M.chead[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -2410,7 +2411,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 else
 	 vhat[j] = 0;
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 }
@@ -2420,7 +2421,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 {
 	 ps = M.chead[qrVNode[j]];
 	 vhat[qrVNode[j]] = qr_new[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -2429,7 +2430,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 else
 	 ps->Zmn = -MAXLLR2;
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 }
@@ -2440,8 +2441,8 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 //judgeFlag = judgeZero(vhat);
 
 	 if (judgeFlag)
-	 {  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-	 //decodingflag = 1;//ÒëÂëÕýÈ·
+	 {  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 	 decodingflag++;
 	 break;
 	 }
@@ -2474,7 +2475,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 {
 	 double Tmn = 1.0;
 	 double min = 100000.0;
-	 ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+	 ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 while (ts != NULL)
 	 {
 	 if ((ts->col_num) != (qs->col_num))
@@ -2487,7 +2488,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 ts = ts->right;
 	 }
 
-	 //ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	 if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 	 if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -2501,13 +2502,13 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-	 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	 for (int j = 0; j < cols; j++)//147
 	 {
 	 if (!Contained(qrVNode, j))
 	 {
 	 ps = M.chead[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -2546,7 +2547,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 else
 	 vhat[j] = 0;
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 }
@@ -2556,7 +2557,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 {
 	 ps = M.chead[qrVNode[j]];
 	 vhat[qrVNode[j]] = qr_most[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -2565,7 +2566,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 else
 	 ps->Zmn = -MAXLLR2;
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 }
@@ -2602,7 +2603,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 {
 
 	 ps = M.rhead[i];
-	 for (int j = 1; j < qrN + 1; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+	 for (int j = 1; j < qrN + 1; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 	 {
 	 for (int m = 0; m < Usize; m++)
 	 {
@@ -2653,7 +2654,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 {
 	 double Tmn = 1.0;
 	 double min = 100000.0;
-	 ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+	 ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 while (ts != NULL)
 	 {
 	 if ((ts->col_num) != (qs->col_num))
@@ -2666,7 +2667,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 ts = ts->right;
 	 }
 
-	 ////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	 ////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	 qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	 if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 	 if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -2681,11 +2682,11 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-	 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	 for (int j = 0; j < cols; j++)//147
 	 {
 	 ps = M.chead[j];
-	 while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 {
 	 double prod_rmn = 0.0;
 
@@ -2727,7 +2728,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-	 ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	 ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	 }//cout<<endl;//end- while(qs!=NULL)
 	 } // for(j=0;j<cols;j++)
@@ -2737,8 +2738,8 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 //judgeFlag = judgeZero(vhat);
 
 	 if (judgeFlag)
-	 {  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-	 //decodingflag = 1;//ÒëÂëÕýÈ·
+	 {  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 	 decodingflag++;
 	 //if(decodingflag==2)
 	 break;
@@ -2808,7 +2809,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	double MIN = 1E-15;
 	int decodingflag = 0;
 
-	vector<double>  pn0(cols);  //ÐÅµÀ´«µÝ¸ø±äÁ¿½ÚµãµÄ¸ÅÂÊ
+	vector<double>  pn0(cols);  //ï¿½Åµï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ä¸ï¿½ï¿½ï¿½
 	vector<double>  pn1(cols);
 	vector<double>  Fn(cols);
 
@@ -2824,7 +2825,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 	for (int i = 0; i < cols; i++)
 	{
-		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 		if (pn0[i] < MIN)
 			pn0[i] = MIN;
 		pn1[i] = 1 - pn0[i];
@@ -2835,13 +2836,13 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
 	for (int i = 0; i < ROWS; i++)
 	{
 		ps = M.rhead[i];
 		while (ps != NULL)
 		{
-			//±äÁ¿½Úµã´«ÏòÐ£Ñé½ÚµãµÄ³õÊ¼ÏûÏ¢q[i][j]=Pi(0)
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Úµã´«ï¿½ï¿½Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½Ï¢q[i][j]=Pi(0)
 			ps->qmn0 = pn0[ps->col_num];
 			ps->qmn1 = pn1[ps->col_num];
 			ps->Zmn = Fn[ps->col_num];
@@ -2859,7 +2860,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 			qr_old[idx] = 0;
 		else
 			qr_old[idx] = 1;
-		ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+		ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 		idx++;
 	}
 
@@ -2911,7 +2912,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 	}
 
-	int S[q] = { 0 }; //±íÊ¾±ä»¯ÂÊ
+	int S[q] = { 0 }; //ï¿½ï¿½Ê¾ï¿½ä»¯ï¿½ï¿½
 
 	vector< vector< bitset<qrN> > > qrCode(q, vector< bitset<qrN> >());
 	vector< vector< int > > fre(q, vector<int>());
@@ -2931,7 +2932,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 				ps = M.rhead[i];
 
-				for (int j = 1; j < qrN + 1; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+				for (int j = 1; j < qrN + 1; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 				{
 					for (int m = 0; m < Usize; m++)
 					{
@@ -3174,7 +3175,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 					if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 					if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 					qs->Lt_extr = Tmn;
-					////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+					////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 					//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 					//if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 					//if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -3185,7 +3186,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 		os2 << endl;
 
 
-		//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (int j = 0; j < cols; j++)
 		{
 			ps = M.chead[j];
@@ -3230,7 +3231,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 				else
 					vhat[j] = 0;
 
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 			}
 		}
 
@@ -3243,7 +3244,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 		while (ps != NULL)
 		{
 			qr_new[idx2] = vhat[ps->col_num];
-			ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+			ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 			idx2++;
 		}
 
@@ -3281,12 +3282,12 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-		   //decodingflag = 1;//ÒëÂëÕýÈ·
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		   //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 		   //if(decodingflag==2)
 			break;
 		}
-	}/*********Íê³ÉÒ»Ö¡µÄÒëÂë********/
+	}/*********ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 	 /*
 	 if (!judgeFlag)
 	 {
@@ -3442,7 +3443,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 	if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 	qs->Lt_extr = Tmn;
-	//////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	//////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	if (qs->Lt_extr > MAXLLR2) qs->Lt_extr = MAXLLR2;
 	if (qs->Lt_extr < -MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -3455,13 +3456,13 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 
-	//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	for (int j = 0; j < cols; j++)
 	{
 	if (!Contained(qrVNode, j))
 	{
 	ps = M.chead[j];
-	while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	{
 	double prod_rmn = 0.0;
 	double temp = ps->Zmn;
@@ -3586,7 +3587,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	{
 	double Tmn = 1.0;
 	double min = 100000.0;
-	ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+	ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	while (ts != NULL)
 	{
 	if ((ts->col_num) != (qs->col_num))
@@ -3611,7 +3612,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 	if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 	qs->Lt_extr = Tmn;
-	////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	//qs->Lt_extr = coefficient + (log((1 + Tmn) / (1 - Tmn)));
 	if (qs->Lt_extr > MAXLLR2) qs->Lt_extr = MAXLLR2;
 	if (qs->Lt_extr < -MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -3624,7 +3625,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 
-	//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	for (int j = 0; j < cols; j++)
 	{
 	if (!Contained(qrVNode, j))
@@ -3672,7 +3673,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	else
 	vhat[j] = 0;
 
-	ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	}
 	}
@@ -3691,7 +3692,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	else
 	ps->Zmn = -MAXLLR2;
 
-	ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	}
 	}
@@ -3704,7 +3705,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	else
 	ps->Zmn = MAXLLR2;
 
-	ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
 
 	judgeFlag = otherLDPC1.judgeZero(vhat);
@@ -3750,7 +3751,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	{
 
 	ps = M.rhead[i];
-	for (int j = 1; j < qrN + 1; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+	for (int j = 1; j < qrN + 1; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 	{
 	for (int m = 0; m < Usize; m++)
 	{
@@ -3821,7 +3822,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 	if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 	qs->Lt_extr = Tmn;
-	//////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	//////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	if (qs->Lt_extr > MAXLLR2) qs->Lt_extr = MAXLLR2;
 	if (qs->Lt_extr < -MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -3831,7 +3832,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	}
 
 	}
-	//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	for (int j = 0; j < cols; j++)
 	{
 	ps = M.chead[j];
@@ -3879,7 +3880,7 @@ int qcldpc::min_sum_v2(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 
-	ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	}
 	}
@@ -3994,7 +3995,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	double MIN = 1E-15;
 	int decodingflag = 0;
 
-	vector<double>  pn0(cols);  //ÐÅµÀ´«µÝ¸ø±äÁ¿½ÚµãµÄ¸ÅÂÊ
+	vector<double>  pn0(cols);  //ï¿½Åµï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ä¸ï¿½ï¿½ï¿½
 	vector<double>  pn1(cols);
 	vector<double>  Fn(cols);
 
@@ -4010,7 +4011,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 	for (int i = 0; i < cols; i++)
 	{
-		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 		if (pn0[i] < MIN)
 			pn0[i] = MIN;
 		pn1[i] = 1 - pn0[i];
@@ -4021,13 +4022,13 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
 	for (int i = 0; i < ROWS; i++)
 	{
 		ps = M.rhead[i];
 		while (ps != NULL)
 		{
-			//±äÁ¿½Úµã´«ÏòÐ£Ñé½ÚµãµÄ³õÊ¼ÏûÏ¢q[i][j]=Pi(0)
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Úµã´«ï¿½ï¿½Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½Ï¢q[i][j]=Pi(0)
 			ps->qmn0 = pn0[ps->col_num];
 			ps->qmn1 = pn1[ps->col_num];
 			ps->Zmn = Fn[ps->col_num];
@@ -4054,7 +4055,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 			{
 				ps = M.rhead[i];
 
-				for (int j = 1; j < qrCOLS + 1; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+				for (int j = 1; j < qrCOLS + 1; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 				{
 					for (int m = 0; m < Usize; m++)
 					{
@@ -4125,7 +4126,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 					if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 					if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 					qs->Lt_extr = Tmn;
-					////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+					////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 					//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 					//if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 					//if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -4136,7 +4137,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 
-		//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (int j = 0; j < cols; j++)
 		{
 			ps = M.chead[j];
@@ -4183,7 +4184,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 				else
 					vhat[j] = 0;
 
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 			}
 		}
 
@@ -4206,7 +4207,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 		ps = ps->right;
 		}
 
-		// ´ËÊ±k4£½h(i,:)*vhat;
+		// ï¿½ï¿½Ê±k4ï¿½ï¿½h(i,:)*vhat;
 		if (sum != 0)
 		{
 		judgeFlag = 0;
@@ -4258,13 +4259,13 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 		*/
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-		   //decodingflag = 1;//ÒëÂëÕýÈ·
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		   //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 		   //if(decodingflag==2)
 
 			break;
 		}
-	}/*********Íê³ÉÒ»Ö¡µÄÒëÂë********/
+	}/*********ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 
 	vector<int> disVar(cols, 0);
 	for (int i = 0; i != ROWS; ++i)
@@ -4390,7 +4391,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 	if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 	qs->Lt_extr = Tmn;
-	//////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	//////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	if (qs->Lt_extr > MAXLLR2) qs->Lt_extr = MAXLLR2;
 	if (qs->Lt_extr < -MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -4403,13 +4404,13 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 
-	//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	for (int j = 0; j < cols; j++)
 	{
 	if (!Contained(qrVNode, j))
 	{
 	ps = M.chead[j];
-	while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	{
 	double prod_rmn = 0.0;
 	double temp = ps->Zmn;
@@ -4534,7 +4535,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	{
 	double Tmn = 1.0;
 	double min = 100000.0;
-	ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+	ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	while (ts != NULL)
 	{
 	if ((ts->col_num) != (qs->col_num))
@@ -4559,7 +4560,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 	if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 	qs->Lt_extr = Tmn;
-	////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	//qs->Lt_extr = coefficient + (log((1 + Tmn) / (1 - Tmn)));
 	if (qs->Lt_extr > MAXLLR2) qs->Lt_extr = MAXLLR2;
 	if (qs->Lt_extr < -MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -4572,7 +4573,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 
-	//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	for (int j = 0; j < cols; j++)
 	{
 	if (!Contained(qrVNode, j))
@@ -4620,7 +4621,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	else
 	vhat[j] = 0;
 
-	ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	}
 	}
@@ -4639,7 +4640,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	else
 	ps->Zmn = -MAXLLR2;
 
-	ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	}
 	}
@@ -4652,7 +4653,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	else
 	ps->Zmn = MAXLLR2;
 
-	ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
 
 	judgeFlag = otherLDPC1.judgeZero(vhat);
@@ -4698,7 +4699,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	{
 
 	ps = M.rhead[i];
-	for (int j = 1; j < qrN + 1; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+	for (int j = 1; j < qrN + 1; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 	{
 	for (int m = 0; m < Usize; m++)
 	{
@@ -4769,7 +4770,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 	if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 	qs->Lt_extr = Tmn;
-	//////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	//////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	if (qs->Lt_extr > MAXLLR2) qs->Lt_extr = MAXLLR2;
 	if (qs->Lt_extr < -MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -4779,7 +4780,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	}
 
 	}
-	//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	for (int j = 0; j < cols; j++)
 	{
 	ps = M.chead[j];
@@ -4827,7 +4828,7 @@ int qcldpc::min_sum_v3(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 
-	ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	}
 	}
@@ -4932,7 +4933,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	double MIN = 1E-15;
 	int decodingflag = 0;
 
-	vector<double>  pn0(cols);  //ÐÅµÀ´«µÝ¸ø±äÁ¿½ÚµãµÄ¸ÅÂÊ
+	vector<double>  pn0(cols);  //ï¿½Åµï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ä¸ï¿½ï¿½ï¿½
 	vector<double>  pn1(cols);
 	vector<double>  Fn(cols);
 
@@ -4954,7 +4955,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 	for (int i = 0; i < cols; i++)
 	{
-		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 		if (pn0[i] < MIN)
 			pn0[i] = MIN;
 		pn1[i] = 1 - pn0[i];
@@ -4965,13 +4966,13 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
 	for (int i = 0; i < ROWS; i++)
 	{
 		ps = M.rhead[i];
 		while (ps != NULL)
 		{
-			//±äÁ¿½Úµã´«ÏòÐ£Ñé½ÚµãµÄ³õÊ¼ÏûÏ¢q[i][j]=Pi(0)
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Úµã´«ï¿½ï¿½Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½Ï¢q[i][j]=Pi(0)
 			ps->qmn0 = pn0[ps->col_num];
 			ps->qmn1 = pn1[ps->col_num];
 			ps->Zmn = Fn[ps->col_num];
@@ -5005,7 +5006,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 				ps = M.rhead[i];
 
-				for (int j = 1; j < qrN + 1; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+				for (int j = 1; j < qrN + 1; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 				{
 					for (int m = 0; m < Usize; m++)
 					{
@@ -5268,7 +5269,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 					if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 					if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 					qs->Lt_extr = Tmn;
-					////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+					////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 					//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 					//if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 					//if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -5304,7 +5305,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 			cout << endl;
 		}
 
-		//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (int j = 0; j < cols; j++)
 		{
 			ps = M.chead[j];
@@ -5351,7 +5352,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 				else
 					vhat[j] = 0;
 
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 			}
 		}
 
@@ -5393,7 +5394,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 					ps = M.rhead[i];
 
-					for (int j = 1; j < qrN + 1; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+					for (int j = 1; j < qrN + 1; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 					{
 						for (int m = 0; m < Usize; m++)
 						{
@@ -5556,12 +5557,12 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-		   //decodingflag = 1;//ÒëÂëÕýÈ·
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		   //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 		   //if(decodingflag==2)
 			break;
 		}
-	}/*********Íê³ÉÒ»Ö¡µÄÒëÂë********/
+	}/*********ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 
 	delete[]distri;
 	delete[]codeFromPartialChk;
@@ -5667,7 +5668,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 	if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 	qs->Lt_extr = Tmn;
-	//////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	//////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	if (qs->Lt_extr > MAXLLR2) qs->Lt_extr = MAXLLR2;
 	if (qs->Lt_extr < -MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -5680,13 +5681,13 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 
-	//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	for (int j = 0; j < cols; j++)
 	{
 	if (!Contained(qrVNode, j))
 	{
 	ps = M.chead[j];
-	while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	{
 	double prod_rmn = 0.0;
 	double temp = ps->Zmn;
@@ -5811,7 +5812,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	{
 	double Tmn = 1.0;
 	double min = 100000.0;
-	ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+	ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	while (ts != NULL)
 	{
 	if ((ts->col_num) != (qs->col_num))
@@ -5836,7 +5837,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 	if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 	qs->Lt_extr = Tmn;
-	////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	//qs->Lt_extr = coefficient + (log((1 + Tmn) / (1 - Tmn)));
 	if (qs->Lt_extr > MAXLLR2) qs->Lt_extr = MAXLLR2;
 	if (qs->Lt_extr < -MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -5849,7 +5850,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 
-	//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	for (int j = 0; j < cols; j++)
 	{
 	if (!Contained(qrVNode, j))
@@ -5897,7 +5898,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	else
 	vhat[j] = 0;
 
-	ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	}
 	}
@@ -5916,7 +5917,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	else
 	ps->Zmn = -MAXLLR2;
 
-	ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	}
 	}
@@ -5929,7 +5930,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	else
 	ps->Zmn = MAXLLR2;
 
-	ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
 
 	judgeFlag = otherLDPC1.judgeZero(vhat);
@@ -5975,7 +5976,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	{
 
 	ps = M.rhead[i];
-	for (int j = 1; j < qrN + 1; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+	for (int j = 1; j < qrN + 1; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 	{
 	for (int m = 0; m < Usize; m++)
 	{
@@ -6046,7 +6047,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 	if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 	qs->Lt_extr = Tmn;
-	//////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	//////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	if (qs->Lt_extr > MAXLLR2) qs->Lt_extr = MAXLLR2;
 	if (qs->Lt_extr < -MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -6056,7 +6057,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 	}
 
 	}
-	//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	for (int j = 0; j < cols; j++)
 	{
 	ps = M.chead[j];
@@ -6104,7 +6105,7 @@ int qcldpc::min_sum_v4(int *CodeWord, int *vhat, double *TotalLLR, double *chann
 
 
 
-	ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã
+	ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	}
 	}
@@ -6209,13 +6210,13 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	U[i][0] = 0.0;
 	}*/
 
-	vector<double>  pn0(cols);  //ÐÅµÀ´«µÝ¸ø±äÁ¿½ÚµãµÄ¸ÅÂÊ
+	vector<double>  pn0(cols);  //ï¿½Åµï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ä¸ï¿½ï¿½ï¿½
 	vector<double>  pn1(cols);
 	vector<double>  Fn(cols);
 
 	for (i = 0; i < cols; i++)
 	{
-		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 		if (pn0[i] < MIN)
 			pn0[i] = MIN;
 		pn1[i] = 1 - pn0[i];
@@ -6226,20 +6227,20 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	}//cout<<endl;
 
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
-								  //1. Ð£Ñé½ÚµãµÄ³õÊ¼»¯
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+								  //1. Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½
 	for (i = 0; i < ROWS; i++)//42  rows/3
 	{
 		ps = M.rhead[i];
 		while (ps != NULL)
 		{
-			//±äÁ¿½Úµã´«ÏòÐ£Ñé½ÚµãµÄ³õÊ¼ÏûÏ¢q[i][j]=Pi(0)
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Úµã´«ï¿½ï¿½Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½Ï¢q[i][j]=Pi(0)
 			ps->qmn0 = pn0[ps->col_num];             //input0[42][7]
 													 //cout<<ps->qmn0<<" ";
 			ps->qmn1 = pn1[ps->col_num];             //input1[42][7]
 			ps->Zmn = Fn[ps->col_num];
 			//cout<<Fn[ps->col_num]<<" ";
-			ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+			ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 		}//cout<<endl;
 	}
 	//cout << "iteration begins " << endl;
@@ -6270,14 +6271,14 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 				cout << endl;*/
 
 				ps = M.rhead[i];
-				for (int j = 1; j < 18; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+				for (int j = 1; j < 18; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 				{
 					for (int m = 0; m < 256; m++)
 					{
 						U[m][j] = U[m][j - 1] * ps->qmn0 + U[m ^ hm[j - 1]][j - 1] * ps->qmn1;
 					}
 
-					ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+					ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 				}
 
@@ -6311,7 +6312,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 					}
 					//cout << qs->Lt_extr << " ";
 					//cout << log(qs->outp0 / qs->outp1) << " ";
-					qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+					qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 				}//cout<<endl;
 				 //cout << endl;
 
@@ -6336,7 +6337,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 				 //	for (int m = 0; m < 17; m++)
 				 //	{
 				 //	    qs->Lt_extr *= 1;
-				 //		qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+				 //		qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 				 //	}
 				 //}
 				 //else
@@ -6346,7 +6347,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 				 //	for (int m = 0; m < 17; m++)
 				 //	{
 				 //		qs->Lt_extr *= 1;
-				 //		qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+				 //		qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 				 //	}
 				 //}
 			}
@@ -6358,7 +6359,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 				while (qs != NULL)
 				{
 					double Tmn = 1.0;
-					ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+					ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 					while (ts != NULL)
 					{
 						if ((ts->col_num) != (qs->col_num))
@@ -6369,7 +6370,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 						}
 						ts = ts->right;
 					}
-					//qs->Lt_extr = 1.15 * (log((1 + Tmn) / (1 - Tmn))) + 5;//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+					//qs->Lt_extr = 1.15 * (log((1 + Tmn) / (1 - Tmn))) + 5;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 					qs->Lt_extr = 1.15 * (log((1 + Tmn) / (1 - Tmn)));
 					if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 					if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -6386,11 +6387,11 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 		}//end-for(0;Ldpc_Row)  
 
 
-		 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (j = 0; j < cols; j++)//147
 		{
 			ps = M.chead[j];
-			while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+			while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 			{
 				double prod_rmn = 0.0;
 
@@ -6432,7 +6433,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 
 
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 
 			}//cout<<endl;//end- while(qs!=NULL)
 		} // for(j=0;j<cols;j++)
@@ -6441,13 +6442,13 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 		//judgeFlag = judgeZero(vhat);
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-		   //decodingflag = 1;//ÒëÂëÕýÈ·
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		   //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 			decodingflag++;
 			//if(decodingflag==2)
 			break;
 		}
-	}/*********Íê³ÉÒ»Ö¡µÄÒëÂë********/
+	}/*********ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 
 	 /*if (itr_num == 51)
 	 {
@@ -6523,7 +6524,7 @@ int qcldpc::log_Decoder_v2(int *vhat, int *code, double *TotalLLR, double *chann
 	U[i][0] = 0.0;
 	}*/
 
-	vector<double>  pn0(cols);  //ÐÅµÀ´«µÝ¸ø±äÁ¿½ÚµãµÄ¸ÅÂÊ
+	vector<double>  pn0(cols);  //ï¿½Åµï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ä¸ï¿½ï¿½ï¿½
 	vector<double>  pn1(cols);
 	vector<double>  Fn(cols);
 
@@ -6531,7 +6532,7 @@ int qcldpc::log_Decoder_v2(int *vhat, int *code, double *TotalLLR, double *chann
 
 	for (int i = 0; i < cols; i++)
 	{
-		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 		if (pn0[i] < MIN)
 			pn0[i] = MIN;
 		pn1[i] = 1 - pn0[i];
@@ -6553,20 +6554,20 @@ int qcldpc::log_Decoder_v2(int *vhat, int *code, double *TotalLLR, double *chann
 		freqChanged[i] = 0;
 	}
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
-								  //1. Ð£Ñé½ÚµãµÄ³õÊ¼»¯
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+								  //1. Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½
 	for (int i = 0; i < ROWS; i++)//42  rows/3
 	{
 		ps = M.rhead[i];
 		while (ps != NULL)
 		{
-			//±äÁ¿½Úµã´«ÏòÐ£Ñé½ÚµãµÄ³õÊ¼ÏûÏ¢q[i][j]=Pi(0)
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Úµã´«ï¿½ï¿½Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½Ï¢q[i][j]=Pi(0)
 			ps->qmn0 = pn0[ps->col_num];             //input0[42][7]
 													 //cout<<ps->qmn0<<" ";
 			ps->qmn1 = pn1[ps->col_num];             //input1[42][7]
 			ps->Zmn = Fn[ps->col_num];
 			//cout<<Fn[ps->col_num]<<" ";
-			ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+			ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 		}//cout<<endl;
 	}
 	//cout << "iteration begins " << endl;
@@ -6596,13 +6597,13 @@ int qcldpc::log_Decoder_v2(int *vhat, int *code, double *TotalLLR, double *chann
 				cout << endl;*/
 
 				ps = M.rhead[i];
-				for (int j = 1; j < 18; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+				for (int j = 1; j < 18; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 				{
 					for (int m = 0; m < 256; m++)
 					{
 						U[m][j] = U[m][j - 1] * ps->qmn0 + U[m ^ hm[j - 1]][j - 1] * ps->qmn1;
 					}
-					ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+					ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 				}
 
 				int qr[17] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
@@ -6631,7 +6632,7 @@ int qcldpc::log_Decoder_v2(int *vhat, int *code, double *TotalLLR, double *chann
 					}
 					//cout << qs->Lt_extr << " ";
 					//cout << log(qs->outp0 / qs->outp1) << " ";
-					qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+					qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 				}//cout<<endl;
 				 //cout << endl;
 
@@ -6656,7 +6657,7 @@ int qcldpc::log_Decoder_v2(int *vhat, int *code, double *TotalLLR, double *chann
 				 //	for (int m = 0; m < 17; m++)
 				 //	{
 				 //	    qs->Lt_extr *= 1;
-				 //		qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+				 //		qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 				 //	}
 				 //}
 				 //else
@@ -6666,7 +6667,7 @@ int qcldpc::log_Decoder_v2(int *vhat, int *code, double *TotalLLR, double *chann
 				 //	for (int m = 0; m < 17; m++)
 				 //	{
 				 //		qs->Lt_extr *= 1;
-				 //		qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+				 //		qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 				 //	}
 				 //}
 			}
@@ -6678,7 +6679,7 @@ int qcldpc::log_Decoder_v2(int *vhat, int *code, double *TotalLLR, double *chann
 				while (qs != NULL)
 				{
 					double Tmn = 1.0;
-					ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+					ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 					while (ts != NULL)
 					{
 						if ((ts->col_num) != (qs->col_num))
@@ -6689,7 +6690,7 @@ int qcldpc::log_Decoder_v2(int *vhat, int *code, double *TotalLLR, double *chann
 						}
 						ts = ts->right;
 					}
-					qs->Lt_extr = 1.15 * log((1 + Tmn) / (1 - Tmn));//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+					qs->Lt_extr = 1.15 * log((1 + Tmn) / (1 - Tmn));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 					if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 					if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
 
@@ -6702,11 +6703,11 @@ int qcldpc::log_Decoder_v2(int *vhat, int *code, double *TotalLLR, double *chann
 		}//end-for(0;Ldpc_Row)  
 
 
-		 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (int j = 0; j < cols; j++)//147
 		{
 			ps = M.chead[j];
-			while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+			while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 			{
 				double prod_rmn = 0.0;
 
@@ -6748,7 +6749,7 @@ int qcldpc::log_Decoder_v2(int *vhat, int *code, double *TotalLLR, double *chann
 
 
 
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 
 			}//cout<<endl;//end- while(qs!=NULL)
 		} // for(j=0;j<cols;j++)
@@ -6782,12 +6783,12 @@ int qcldpc::log_Decoder_v2(int *vhat, int *code, double *TotalLLR, double *chann
 		//judgeFlag = judgeZero(vhat);
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-		   //decodingflag = 1;//ÒëÂëÕýÈ·
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		   //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 			decodingflag = 1;
 			break;
 		}
-	}/*********Íê³ÉÒ»Ö¡µÄÒëÂë********/
+	}/*********ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 
 	delete[]freqChanged;
 	delete[]vhat_pre;
@@ -6837,13 +6838,13 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	U[i][0] = 0.0;
 	}*/
 
-	vector<double>  pn0(cols);  //ÐÅµÀ´«µÝ¸ø±äÁ¿½ÚµãµÄ¸ÅÂÊ
+	vector<double>  pn0(cols);  //ï¿½Åµï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ä¸ï¿½ï¿½ï¿½
 	vector<double>  pn1(cols);
 	vector<double>  Fn(cols);
 
 	for (i = 0; i < cols; i++)
 	{
-		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 		if (pn0[i] < MIN)
 			pn0[i] = MIN;
 		pn1[i] = 1 - pn0[i];
@@ -6854,20 +6855,20 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	}//cout<<endl;
 
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
-								  //1. Ð£Ñé½ÚµãµÄ³õÊ¼»¯
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+								  //1. Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½
 	for (i = 0; i < ROWS; i++)//42  rows/3
 	{
 		ps = M.rhead[i];
 		while (ps != NULL)
 		{
-			//±äÁ¿½Úµã´«ÏòÐ£Ñé½ÚµãµÄ³õÊ¼ÏûÏ¢q[i][j]=Pi(0)
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Úµã´«ï¿½ï¿½Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½Ï¢q[i][j]=Pi(0)
 			ps->qmn0 = pn0[ps->col_num];             //input0[42][7]
 													 //cout<<ps->qmn0<<" ";
 			ps->qmn1 = pn1[ps->col_num];             //input1[42][7]
 			ps->Zmn = Fn[ps->col_num];
 			//cout<<Fn[ps->col_num]<<" ";
-			ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+			ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 		}//cout<<endl;
 	}
 	//cout << "iteration begins " << endl;
@@ -6883,7 +6884,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 			if (Contained(selectRows, i, seleRowsN))
 			{
 				qs = ps = M.rhead[i];
-				for (int j = 1; j < 18; j++)  //¸üÐÂ×´Ì¬±í¸ñ£¬ÏÈ¸üÐÂÁÐ(s)ºóÐÐ(n)
+				for (int j = 1; j < 18; j++)  //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ï¿½(s)ï¿½ï¿½ï¿½ï¿½(n)
 				{
 					for (int m = 0; m < 256; m++)
 					{
@@ -6891,7 +6892,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 					}
 
-					ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+					ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 				}
 
@@ -6916,7 +6917,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 							qs->Lt_extr = -MAXLLR2;
 					}
 					//cout << qs->Lt_extr << " ";
-					qs = qs->right; //Ö¸ÏòÏÂÒ»¸ö½áµã
+					qs = qs->right; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 				}//cout<<endl;
 				 //cout << endl;
 			}
@@ -6927,7 +6928,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 				while (qs != NULL)
 				{
 					double Tmn = 1.0;
-					ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+					ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 					while (ts != NULL)
 					{
 						if ((ts->col_num) != (qs->col_num))
@@ -6938,7 +6939,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 						}
 						ts = ts->right;
 					}
-					qs->Lt_extr = log((1 + Tmn) / (1 - Tmn));//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+					qs->Lt_extr = log((1 + Tmn) / (1 - Tmn));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 					if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 					if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
 
@@ -6948,11 +6949,11 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 		}//end-for(0;Ldpc_Row)  
 
-		 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (j = 0; j < cols; j++)//147
 		{
 			ps = M.chead[j];
-			while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+			while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 			{
 				double prod_rmn = 0.0;
 
@@ -6989,7 +6990,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 					vhat[j] = 1;
 				else
 					vhat[j] = 0;
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 
 			}//cout<<endl;//end- while(qs!=NULL)
 		} // for(j=0;j<cols;j++)
@@ -6997,11 +6998,11 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 		judgeFlag = otherLDPC1.judgeZero(vhat);
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-			decodingflag = 1;//ÒëÂëÕýÈ·
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 			break;
 		}
-	}/*********Íê³ÉÒ»Ö¡µÄÒëÂë********/
+	}/*********ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 
 	 /*if (itr_num == 51)
 	 {
@@ -7040,13 +7041,13 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	double MIN = 1E-15;
 	int decodingflag = 0;
 
-	vector<double>  pn0(cols);  //ÐÅµÀ´«µÝ¸ø±äÁ¿½ÚµãµÄ¸ÅÂÊ
+	vector<double>  pn0(cols);  //ï¿½Åµï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ä¸ï¿½ï¿½ï¿½
 	vector<double>  pn1(cols);
 	vector<double>  Fn(cols);
 
 	for (i = 0; i < cols; i++)
 	{
-		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 		if (pn0[i] < MIN)
 			pn0[i] = MIN;
 		pn1[i] = 1 - pn0[i];
@@ -7057,20 +7058,20 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 	}//cout<<endl;
 
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
-								  //1. Ð£Ñé½ÚµãµÄ³õÊ¼»¯
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+								  //1. Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½
 	for (i = 0; i < ROWS; i++)
 	{
 		ps = M.rhead[i];
 		while (ps != NULL)
 		{
-			//±äÁ¿½Úµã´«ÏòÐ£Ñé½ÚµãµÄ³õÊ¼ÏûÏ¢q[i][j]=Pi(0)
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Úµã´«ï¿½ï¿½Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½Ï¢q[i][j]=Pi(0)
 			ps->qmn0 = pn0[ps->col_num];             //input0[42][7]
 													 //cout<<ps->qmn0<<" ";
 			ps->qmn1 = pn1[ps->col_num];             //input1[42][7]
 			ps->Zmn = Fn[ps->col_num];
 			//cout<<Fn[ps->col_num]<<" ";
-			ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+			ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 		}//cout<<endl;
 	}
 	//cout << "iteration begins " << endl;
@@ -7086,7 +7087,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 			while (qs != NULL)
 			{
 				double Tmn = 1.0;
-				ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+				ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				while (ts != NULL)
 				{
 					if ((ts->col_num) != (qs->col_num))
@@ -7097,7 +7098,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 					}
 					ts = ts->right;
 				}
-				qs->Lt_extr = log((1 + Tmn) / (1 - Tmn));//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+				qs->Lt_extr = log((1 + Tmn) / (1 - Tmn));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 				if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 				if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
 
@@ -7107,11 +7108,11 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 
 		}//end-for(0;Ldpc_Row)  
 
-		 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (j = 0; j < cols; j++)
 		{
 			ps = M.chead[j];
-			while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+			while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 			{
 				double prod_rmn = 0.0;
 
@@ -7148,7 +7149,7 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 					vhat[j] = 1;
 				else
 					vhat[j] = 0;
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 
 			}//cout<<endl;//end- while(qs!=NULL)
 		} // for(j=0;j<cols;j++)
@@ -7156,11 +7157,11 @@ int qcldpc::log_Decoder(int *vhat, double *TotalLLR, double *channelData, double
 		judgeFlag = judgeZero(vhat);
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-			decodingflag = 1;//ÒëÂëÕýÈ·
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 			break;
 		}
-	}/*********Íê³ÉÒ»Ö¡µÄÒëÂë********/
+	}/*********ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 
 	return decodingflag;
 }
@@ -7173,7 +7174,7 @@ int qcldpc::log_Decoder(int *vhat, double *inLLR, double *outLLR, int _MAXITERNO
 	double MIN = 1E-15;
 	int decodingflag = 0;
 
-	vector<double>  pn0(cols);  //ÐÅµÀ´«µÝ¸ø±äÁ¿½ÚµãµÄ¸ÅÂÊ
+	vector<double>  pn0(cols);  //ï¿½Åµï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ä¸ï¿½ï¿½ï¿½
 	vector<double>  pn1(cols);
 	vector<double>  Fn(cols);
 
@@ -7182,7 +7183,7 @@ int qcldpc::log_Decoder(int *vhat, double *inLLR, double *outLLR, int _MAXITERNO
 
 	for (i = 0; i < cols; i++)
 	{
-		pn0[i] = 1.0 / (1.0 + exp(-inLLR[i]));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+		pn0[i] = 1.0 / (1.0 + exp(-inLLR[i]));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 		if (pn0[i] < MIN)
 			pn0[i] = MIN;
 		pn1[i] = 1 - pn0[i];
@@ -7191,20 +7192,20 @@ int qcldpc::log_Decoder(int *vhat, double *inLLR, double *outLLR, int _MAXITERNO
 		Fn[i] = inLLR[i];
 	}
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
-										 //1. Ð£Ñé½ÚµãµÄ³õÊ¼»¯
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+										 //1. Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½
 	for (i = 0; i < ROWS; i++)
 	{
 		ps = M.rhead[i];
 		while (ps != NULL)
 		{
-			//±äÁ¿½Úµã´«ÏòÐ£Ñé½ÚµãµÄ³õÊ¼ÏûÏ¢q[i][j]=Pi(0)
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Úµã´«ï¿½ï¿½Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½Ï¢q[i][j]=Pi(0)
 			ps->qmn0 = pn0[ps->col_num];             //input0[42][7]
 													 //cout<<ps->qmn0<<" ";
 			ps->qmn1 = pn1[ps->col_num];             //input1[42][7]
 			ps->Zmn = Fn[ps->col_num];
 			//cout<<Fn[ps->col_num]<<" ";
-			ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+			ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 		}//cout<<endl;
 	}
 	//cout << "iteration begins " << endl;
@@ -7221,7 +7222,7 @@ int qcldpc::log_Decoder(int *vhat, double *inLLR, double *outLLR, int _MAXITERNO
 			{
 				
 				double Tmn = 1.0;
-				ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+				ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				//os << "***************" << endl;
 				while (ts != NULL)
 				{
@@ -7236,7 +7237,7 @@ int qcldpc::log_Decoder(int *vhat, double *inLLR, double *outLLR, int _MAXITERNO
 				}
 				//os << "**************" << endl;
 				//os << Tmn << endl;
-				qs->Lt_extr = log((1 + Tmn) / (1 - Tmn));//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+				qs->Lt_extr = log((1 + Tmn) / (1 - Tmn));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 				if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 				if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
 				
@@ -7250,11 +7251,11 @@ int qcldpc::log_Decoder(int *vhat, double *inLLR, double *outLLR, int _MAXITERNO
 
 		}//end-for(0;Ldpc_Row)  
 
-		 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (j = 0; j < cols; j++)
 		{
 			ps = M.chead[j];
-			while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+			while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 			{
 				double prod_rmn = 0.0;
 
@@ -7293,7 +7294,7 @@ int qcldpc::log_Decoder(int *vhat, double *inLLR, double *outLLR, int _MAXITERNO
 					vhat[j] = 0;
 
 				outLLR[j] = ps->Zn;
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 
 			}//cout<<endl;//end- while(qs!=NULL)
 		} // for(j=0;j<cols;j++)
@@ -7301,11 +7302,11 @@ int qcldpc::log_Decoder(int *vhat, double *inLLR, double *outLLR, int _MAXITERNO
 		judgeFlag = judgeZero(vhat);
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-			decodingflag = 1;//ÒëÂëÕýÈ·
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 			break;
 		}
-	}/*********Íê³ÉÒ»Ö¡µÄÒëÂë********/
+	}/*********ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 
 	os.close();
 
@@ -7326,7 +7327,7 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 	double h = 1.0;
 	for (i = 0; i < len; i++)
 	{
-		pn0[i] = 1 / (1 + exp(-2 * h*channelData[i] / (sigma*sigma)));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+		pn0[i] = 1 / (1 + exp(-2 * h*channelData[i] / (sigma*sigma)));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 
 		if (pn0[i]<MIN)
 			pn0[i] = MIN;
@@ -7343,8 +7344,8 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 	}
 	cout << endl;*/
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
-								  // ³õÊ¼»¯
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+								  // ï¿½ï¿½Ê¼ï¿½ï¿½
 	for (i = 0; i<ROWS; i++)
 	{
 		ps = M.rhead[i];
@@ -7352,7 +7353,7 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 		{
 			ps->qmn0 = pn0[ps->col_num];
 			ps->qmn1 = pn1[ps->col_num];
-			ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+			ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 		}
 
 	}
@@ -7360,8 +7361,8 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 	int judgeFlag = 0;
 	for (itr_num = 1; itr_num <= _MAXITERNO; itr_num++)
 	{
-		// Ë®Æ½·½Ïò
-		// rmnµÄ³õÊ¼»¯
+		// Ë®Æ½ï¿½ï¿½ï¿½ï¿½
+		// rmnï¿½Ä³ï¿½Ê¼ï¿½ï¿½
 		for (i = 0; i<ROWS; i++)
 		{
 			qs = ps = M.rhead[i];
@@ -7371,12 +7372,12 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 				ps->Qmn1 = (1 - 2 * ps->qmn1);
 				ps = ps->right;
 			}//while(ps!=NULL)	
-			 //whileÑ­»·Íê¾Í±íÃ÷Qmn0~Qmn3¼ÆËãÍê³É£¬´ËÊ±½øÐÐFmn0~Fmn3 µÄ¸³Öµ
+			 //whileÑ­ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ï¿½Qmn0~Qmn3ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É£ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Fmn0~Fmn3 ï¿½Ä¸ï¿½Öµ
 			while (qs != NULL)
 			{
 				//double Fmn0=1.0;   
 				double Fmn = 1.0;
-				ts = M.rhead[i];    //ÓÃÀ´±éÀúÐÐÁ´±íÇó¸÷×ÔµÃFmn0~Fmn3.
+				ts = M.rhead[i];    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôµï¿½Fmn0~Fmn3.
 				while (ts != NULL)
 				{
 					if ((ts->col_num) != (qs->col_num))
@@ -7396,14 +7397,14 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 
 			}//end-while(qs!=NULL)	
 			 //cout << endl;
-		}//Ë®Æ½·½Ïòfor i= 1:rows             
+		}//Ë®Æ½ï¿½ï¿½ï¿½ï¿½for i= 1:rows             
 
 
-		 //ÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		 //ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (j = 0; j<cols; j++)
 		{
 			ps = M.chead[j];
-			while (ps != NULL)	//¼ÆËãËùÓÐµÃrmn0¡«rmn3µÃ³Ë»ý¡£
+			while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 			{
 				double   prod_rmn0 = 1.0;//(*(ps+symbol_in_col[i]*rows+j))
 				double   prod_rmn1 = 1.0;
@@ -7423,13 +7424,13 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 				double const1 = pn0[j] * prod_rmn0;
 				double const2 = pn1[j] * prod_rmn1;
 
-				ps->alphamn = 1 / (const1 + const2); // alphamnÎª¹éÒ»»¯²ÎÊý 
+				ps->alphamn = 1 / (const1 + const2); // alphamnÎªï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
 
 				ps->qmn0 = ps->alphamn*const1;
 				ps->qmn1 = ps->alphamn*const2;
 				//update pseudo posterior probability     
-				//°ÑÏÈÇ°Ã»³ËµÄnewh(ones_in_col(i),j).rmn0³Ë½øÈ¥
-				//------------------------------------Êä³öqmn0 qmn1 qmn2 qmn3
+				//ï¿½ï¿½ï¿½ï¿½Ç°Ã»ï¿½Ëµï¿½newh(ones_in_col(i),j).rmn0ï¿½Ë½ï¿½È¥
+				//------------------------------------ï¿½ï¿½ï¿½qmn0 qmn1 qmn2 qmn3
 
 				//-------------------------------------
 
@@ -7437,7 +7438,7 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 				double const6 = const2*(ps->rmn1);
 
 				double alpha_n = 1 / (const5 + const6);
-				ps->qn0 = alpha_n*const5; // ÇóµÃqn0ºÍqn1,qn2,qn3
+				ps->qn0 = alpha_n*const5; // ï¿½ï¿½ï¿½qn0ï¿½ï¿½qn1,qn2,qn3
 				ps->qn1 = alpha_n*const6;
 				//pn0[j] = ps->qn0;
 				//pn1[j] = ps->qn1;
@@ -7450,7 +7451,7 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 					vhat[j] = 1;
 				else
 					vhat[j] = 0;
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã¡£      
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ã¡£      
 			}//end- while(qs!=NULL)
 		} // for(j=0;j<cols;j++)
 		  /*cout << "&&&&&&&&&&&&&" << endl;
@@ -7465,11 +7466,11 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 		judgeFlag = judgeZero(vhat);
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			decodingflag = 1;
 			break;
 		}
-	}/*********Íê³ÉÒ»Ö¡µÄÒëÂë********/
+	}/*********ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 
 
 	return decodingflag;
@@ -7489,7 +7490,7 @@ int qcldpc::spa_decoder_bitPilot(int *vhat, double *channelData, int _MAXITERNO,
 	double h = 1.0;
 	for (i = 0; i < len; i++)
 	{
-		pn0[i] = 1 / (1 + exp(-2 * h*channelData[i] / (sigma*sigma)));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+		pn0[i] = 1 / (1 + exp(-2 * h*channelData[i] / (sigma*sigma)));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 
 		if (pn0[i]<MIN)
 			pn0[i] = MIN;
@@ -7519,8 +7520,8 @@ int qcldpc::spa_decoder_bitPilot(int *vhat, double *channelData, int _MAXITERNO,
 	}
 	cout << endl;*/
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
-								  // ³õÊ¼»¯
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+								  // ï¿½ï¿½Ê¼ï¿½ï¿½
 	for (i = 0; i<ROWS; i++)
 	{
 		ps = M.rhead[i];
@@ -7528,7 +7529,7 @@ int qcldpc::spa_decoder_bitPilot(int *vhat, double *channelData, int _MAXITERNO,
 		{
 			ps->qmn0 = pn0[ps->col_num];
 			ps->qmn1 = pn1[ps->col_num];
-			ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+			ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 		}
 
 	}
@@ -7536,8 +7537,8 @@ int qcldpc::spa_decoder_bitPilot(int *vhat, double *channelData, int _MAXITERNO,
 	int judgeFlag = 0;
 	for (itr_num = 1; itr_num <= _MAXITERNO; itr_num++)
 	{
-		// Ë®Æ½·½Ïò
-		// rmnµÄ³õÊ¼»¯
+		// Ë®Æ½ï¿½ï¿½ï¿½ï¿½
+		// rmnï¿½Ä³ï¿½Ê¼ï¿½ï¿½
 		for (i = 0; i<ROWS; i++)
 		{
 			qs = ps = M.rhead[i];
@@ -7547,12 +7548,12 @@ int qcldpc::spa_decoder_bitPilot(int *vhat, double *channelData, int _MAXITERNO,
 				ps->Qmn1 = (1 - 2 * ps->qmn1);
 				ps = ps->right;
 			}//while(ps!=NULL)	
-			 //whileÑ­»·Íê¾Í±íÃ÷Qmn0~Qmn3¼ÆËãÍê³É£¬´ËÊ±½øÐÐFmn0~Fmn3 µÄ¸³Öµ
+			 //whileÑ­ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ï¿½Qmn0~Qmn3ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É£ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Fmn0~Fmn3 ï¿½Ä¸ï¿½Öµ
 			while (qs != NULL)
 			{
 				//double Fmn0=1.0;   
 				double Fmn = 1.0;
-				ts = M.rhead[i];    //ÓÃÀ´±éÀúÐÐÁ´±íÇó¸÷×ÔµÃFmn0~Fmn3.
+				ts = M.rhead[i];    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôµï¿½Fmn0~Fmn3.
 				while (ts != NULL)
 				{
 					if ((ts->col_num) != (qs->col_num))
@@ -7572,14 +7573,14 @@ int qcldpc::spa_decoder_bitPilot(int *vhat, double *channelData, int _MAXITERNO,
 
 			}//end-while(qs!=NULL)	
 			 //cout << endl;
-		}//Ë®Æ½·½Ïòfor i= 1:rows             
+		}//Ë®Æ½ï¿½ï¿½ï¿½ï¿½for i= 1:rows             
 
 
-		 //ÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		 //ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (j = 0; j<cols; j++)
 		{
 			ps = M.chead[j];
-			while (ps != NULL)	//¼ÆËãËùÓÐµÃrmn0¡«rmn3µÃ³Ë»ý¡£
+			while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 			{
 				double   prod_rmn0 = 1.0;//(*(ps+symbol_in_col[i]*rows+j))
 				double   prod_rmn1 = 1.0;
@@ -7599,7 +7600,7 @@ int qcldpc::spa_decoder_bitPilot(int *vhat, double *channelData, int _MAXITERNO,
 				double const1 = pn0[j] * prod_rmn0;
 				double const2 = pn1[j] * prod_rmn1;
 
-				ps->alphamn = 1 / (const1 + const2); // alphamnÎª¹éÒ»»¯²ÎÊý 
+				ps->alphamn = 1 / (const1 + const2); // alphamnÎªï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
 
 				ps->qmn0 = ps->alphamn*const1;
 				ps->qmn1 = ps->alphamn*const2;
@@ -7623,7 +7624,7 @@ int qcldpc::spa_decoder_bitPilot(int *vhat, double *channelData, int _MAXITERNO,
 					double const6 = const2*(ps->rmn1);
 
 					double alpha_n = 1 / (const5 + const6);
-					ps->qn0 = alpha_n*const5; // ÇóµÃqn0ºÍqn1,qn2,qn3
+					ps->qn0 = alpha_n*const5; // ï¿½ï¿½ï¿½qn0ï¿½ï¿½qn1,qn2,qn3
 					ps->qn1 = alpha_n*const6;
 					//pn0[j] = ps->qn0;
 					//pn1[j] = ps->qn1;
@@ -7637,7 +7638,7 @@ int qcldpc::spa_decoder_bitPilot(int *vhat, double *channelData, int _MAXITERNO,
 					else
 						vhat[j] = 0;
 				}
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã¡£      
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ã¡£      
 			}//end- while(qs!=NULL)
 		} // for(j=0;j<cols;j++)
 		  /*cout << "&&&&&&&&&&&&&" << endl;
@@ -7652,11 +7653,11 @@ int qcldpc::spa_decoder_bitPilot(int *vhat, double *channelData, int _MAXITERNO,
 		judgeFlag = judgeZero(vhat);
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			decodingflag = 1;
 			break;
 		}
-	}/*********Íê³ÉÒ»Ö¡µÄÒëÂë********/
+	}/*********ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 	return decodingflag;
 }
 int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sigma, int _MAXITERNO)
@@ -7674,13 +7675,13 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-	vector<double>  pn0(cols);  //ÐÅµÀ´«µÝ¸ø±äÁ¿½ÚµãµÄ¸ÅÂÊ
+	vector<double>  pn0(cols);  //ï¿½Åµï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ä¸ï¿½ï¿½ï¿½
 	vector<double>  pn1(cols);
 	vector<double>  Fn(cols);
 
 	for (i = 0; i < cols; i++)
 	{
-		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 		if (pn0[i] < MIN)
 			pn0[i] = MIN;
 		pn1[i] = 1 - pn0[i];
@@ -7691,20 +7692,20 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
-								  //1. Ð£Ñé½ÚµãµÄ³õÊ¼»¯
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+								  //1. Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½
 	for (i = 0; i < ROWS; i++)//42  rows/3
 	{
 		ps = M.rhead[i];
 		while (ps != NULL)
 		{
-			//±äÁ¿½Úµã´«ÏòÐ£Ñé½ÚµãµÄ³õÊ¼ÏûÏ¢q[i][j]=Pi(0)
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Úµã´«ï¿½ï¿½Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½Ï¢q[i][j]=Pi(0)
 			ps->qmn0 = pn0[ps->col_num];             //input0[42][7]
 													 //cout<<ps->qmn0<<" ";
 			ps->qmn1 = pn1[ps->col_num];             //input1[42][7]
 			ps->Zmn = Fn[ps->col_num];
 			//cout<<Fn[ps->col_num]<<" ";
-			ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+			ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 		}//cout<<endl;
 	}
 
@@ -7726,7 +7727,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 			{
 				double Tmn = 1.0;
 				double min = 100000.0;
-				ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+				ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				while (ts != NULL)
 				{
 					if ((ts->col_num) != (qs->col_num))
@@ -7754,7 +7755,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 				if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 				if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 				qs->Lt_extr = Tmn;
-				//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+				//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 				//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 				if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 				if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -7766,11 +7767,11 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 		}//end-for(0;Ldpc_Row)  
 
-		 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (j = 0; j < cols; j++)//147
 		{
 			ps = M.chead[j];
-			while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+			while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 			{
 				double prod_rmn = 0.0;
 				double temp = ps->Zmn;
@@ -7812,7 +7813,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 
 			}//cout<<endl;//end- while(qs!=NULL)
 		} // for(j=0;j<cols;j++)
@@ -7821,13 +7822,13 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 		//judgeFlag = judgeZero(vhat);
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-		   //decodingflag = 1;//ÒëÂëÕýÈ·
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		   //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 			decodingflag++;
 			//if(decodingflag==2)
 			break;
 		}
-	}/*********Íê³ÉÒ»Ö¡µÄÒëÂë********/
+	}/*********ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 
 	 //vector<int> idxMin;
 	 //vector<double> valueMin;
@@ -7920,7 +7921,7 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 	 //					if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 	 //					if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 	 //					qs->Lt_extr = Tmn;
-	 //					//////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	 //					//////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	 //					//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	 //					if (qs->Lt_extr > MAXLLR2) qs->Lt_extr = MAXLLR2;
 	 //					if (qs->Lt_extr < -MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -7931,12 +7932,12 @@ int qcldpc::min_sum(int *vhat, double *TotalLLR, double *channelData, double sig
 
 
 
-	 //			//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	 //			//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	 //			for (int j = 0; j < cols; j++)
 	 //			{
 	 //				
 	 //				ps = M.chead[j];
-	 //				while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 //				while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 //				{
 	 //					double prod_rmn = 0.0;
 	 //					double temp = ps->Zmn;
@@ -8034,13 +8035,13 @@ int qcldpc::spa_log(int *vhat, double *TotalLLR, double sigma, int _MAXITERNO)
 
 
 
-	vector<double>  pn0(cols);  //ÐÅµÀ´«µÝ¸ø±äÁ¿½ÚµãµÄ¸ÅÂÊ
+	vector<double>  pn0(cols);  //ï¿½Åµï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ä¸ï¿½ï¿½ï¿½
 	vector<double>  pn1(cols);
 	vector<double>  Fn(cols);
 
 	for (i = 0; i < cols; i++)
 	{
-		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+		pn0[i] = 1.0 / (1.0 + exp(-TotalLLR[i]));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 		if (pn0[i] < MIN)
 			pn0[i] = MIN;
 		pn1[i] = 1 - pn0[i];
@@ -8051,20 +8052,20 @@ int qcldpc::spa_log(int *vhat, double *TotalLLR, double sigma, int _MAXITERNO)
 
 
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
-								  //1. Ð£Ñé½ÚµãµÄ³õÊ¼»¯
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+								  //1. Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½
 	for (i = 0; i < ROWS; i++)//42  rows/3
 	{
 		ps = M.rhead[i];
 		while (ps != NULL)
 		{
-			//±äÁ¿½Úµã´«ÏòÐ£Ñé½ÚµãµÄ³õÊ¼ÏûÏ¢q[i][j]=Pi(0)
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Úµã´«ï¿½ï¿½Ð£ï¿½ï¿½Úµï¿½Ä³ï¿½Ê¼ï¿½ï¿½Ï¢q[i][j]=Pi(0)
 			ps->qmn0 = pn0[ps->col_num];             //input0[42][7]
 													 //cout<<ps->qmn0<<" ";
 			ps->qmn1 = pn1[ps->col_num];             //input1[42][7]
 			ps->Zmn = Fn[ps->col_num];
 			//cout<<Fn[ps->col_num]<<" ";
-			ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+			ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 		}//cout<<endl;
 	}
 
@@ -8086,7 +8087,7 @@ int qcldpc::spa_log(int *vhat, double *TotalLLR, double sigma, int _MAXITERNO)
 			{
 				double Tmn = 1.0;
 				double min = 100000.0;
-				ts = M.rhead[i]; //ÓÃÀ´±éÀúÐÐÁ´±í
+				ts = M.rhead[i]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				while (ts != NULL)
 				{
 					if ((ts->col_num) != (qs->col_num))
@@ -8097,7 +8098,7 @@ int qcldpc::spa_log(int *vhat, double *TotalLLR, double sigma, int _MAXITERNO)
 					}
 					ts = ts->right;
 				}
-				//ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+				//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 				qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 				if (qs->Lt_extr>MAXLLR2) qs->Lt_extr = MAXLLR2;
 				if (qs->Lt_extr<-MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -8109,11 +8110,11 @@ int qcldpc::spa_log(int *vhat, double *TotalLLR, double sigma, int _MAXITERNO)
 
 		}//end-for(0;Ldpc_Row)  
 
-		 //²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		 //ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (j = 0; j < cols; j++)//147
 		{
 			ps = M.chead[j];
-			while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+			while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 			{
 				double prod_rmn = 0.0;
 				double temp = ps->Zmn;
@@ -8155,7 +8156,7 @@ int qcldpc::spa_log(int *vhat, double *TotalLLR, double sigma, int _MAXITERNO)
 
 
 
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã  
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½  
 
 			}//cout<<endl;//end- while(qs!=NULL)
 		} // for(j=0;j<cols;j++)
@@ -8164,13 +8165,13 @@ int qcldpc::spa_log(int *vhat, double *TotalLLR, double sigma, int _MAXITERNO)
 		//judgeFlag = judgeZero(vhat);
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
-		   //decodingflag = 1;//ÒëÂëÕýÈ·
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		   //decodingflag = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·
 			decodingflag++;
 			//if(decodingflag==2)
 			break;
 		}
-	}/*********Íê³ÉÒ»Ö¡µÄÒëÂë********/
+	}/*********ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 
 	 //vector<int> idxMin;
 	 //vector<double> valueMin;
@@ -8263,7 +8264,7 @@ int qcldpc::spa_log(int *vhat, double *TotalLLR, double sigma, int _MAXITERNO)
 	 //					if (Tmn > MAXLLR2) Tmn = MAXLLR2;
 	 //					if (Tmn < -MAXLLR2) Tmn = -MAXLLR2;
 	 //					qs->Lt_extr = Tmn;
-	 //					//////ÐÐÖØÊÇÆæÊý,variable nodes get value from check nodes
+	 //					//////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,variable nodes get value from check nodes
 	 //					//qs->Lt_extr = (log((1 + Tmn) / (1 - Tmn)));
 	 //					if (qs->Lt_extr > MAXLLR2) qs->Lt_extr = MAXLLR2;
 	 //					if (qs->Lt_extr < -MAXLLR2) qs->Lt_extr = -MAXLLR2;
@@ -8274,12 +8275,12 @@ int qcldpc::spa_log(int *vhat, double *TotalLLR, double sigma, int _MAXITERNO)
 
 
 
-	 //			//²½Öè2£ºÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+	 //			//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 	 //			for (int j = 0; j < cols; j++)
 	 //			{
 	 //				
 	 //				ps = M.chead[j];
-	 //				while (ps != NULL)	//¼ÆËãËùÓÐµÄrmn0¡«rmn3µÃ³Ë»ý¡£
+	 //				while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 	 //				{
 	 //					double prod_rmn = 0.0;
 	 //					double temp = ps->Zmn;
@@ -8381,7 +8382,7 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 	{
 		if (!Contained(vs_candidate, i, 23))
 		{
-			pn0[i] = 1 / (1 + exp(-2 * h*channelData[i] / (sigma*sigma)));// pn:¸ÅÂÊ£¬Èç£ºpn1(i):µÚiÎ»Îª1µÄ¸ÅÂÊ¡£
+			pn0[i] = 1 / (1 + exp(-2 * h*channelData[i] / (sigma*sigma)));// pn:ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ç£ºpn1(i):ï¿½ï¿½iÎ»Îª1ï¿½Ä¸ï¿½ï¿½Ê¡ï¿½
 
 			if (pn0[i]<MIN)
 				pn0[i] = MIN;
@@ -8405,8 +8406,8 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 		}
 	}
 
-	struct OLNode4BINARY *ps, *qs, *ts;  //¶¨ÒåÒ»¸öÖ¸ÏòÊ®×ÖÁ´±íµÄÖ¸Õë
-								  // ³õÊ¼»¯
+	struct OLNode4BINARY *ps, *qs, *ts;  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ö¸ï¿½ï¿½Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+								  // ï¿½ï¿½Ê¼ï¿½ï¿½
 	for (i = 0; i<ROWS; i++)
 	{
 		ps = M.rhead[i];
@@ -8414,7 +8415,7 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 		{
 			ps->qmn0 = pn0[ps->col_num];
 			ps->qmn1 = pn1[ps->col_num];
-			ps = ps->right;    //Ö¸ÏòÏÂÒ»¸ö½áµã
+			ps = ps->right;    //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 		}
 
 	}
@@ -8422,8 +8423,8 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 	int judgeFlag = 0;
 	for (itr_num = 1; itr_num <= _MAXITERNO; itr_num++)
 	{
-		// Ë®Æ½·½Ïò
-		// rmnµÄ³õÊ¼»¯
+		// Ë®Æ½ï¿½ï¿½ï¿½ï¿½
+		// rmnï¿½Ä³ï¿½Ê¼ï¿½ï¿½
 		for (i = 0; i<ROWS; i++)
 		{
 			qs = ps = M.rhead[i];
@@ -8433,12 +8434,12 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 				ps->Qmn1 = (1 - 2 * ps->qmn1);
 				ps = ps->right;
 			}//while(ps!=NULL)	
-			 //whileÑ­»·Íê¾Í±íÃ÷Qmn0~Qmn3¼ÆËãÍê³É£¬´ËÊ±½øÐÐFmn0~Fmn3 µÄ¸³Öµ
+			 //whileÑ­ï¿½ï¿½ï¿½ï¿½Í±ï¿½ï¿½ï¿½Qmn0~Qmn3ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É£ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Fmn0~Fmn3 ï¿½Ä¸ï¿½Öµ
 			while (qs != NULL)
 			{
 				//double Fmn0=1.0;   
 				double Fmn = 1.0;
-				ts = M.rhead[i];    //ÓÃÀ´±éÀúÐÐÁ´±íÇó¸÷×ÔµÃFmn0~Fmn3.
+				ts = M.rhead[i];    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôµï¿½Fmn0~Fmn3.
 				while (ts != NULL)
 				{
 					if ((ts->col_num) != (qs->col_num))
@@ -8457,14 +8458,14 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 
 			}//end-while(qs!=NULL)	
 
-		}//Ë®Æ½·½Ïòfor i= 1:rows             
+		}//Ë®Æ½ï¿½ï¿½ï¿½ï¿½for i= 1:rows             
 
 
-		 //ÒÔÏÂÎª´¹Ö±·½Ïò ´¹Ö±·½Ïò±íÊ¾£ºÒ»¸ö±äÁ¿µãÊÜµ½¼¸¸öÐ£ÑéµãµÄÐ£Ñé¡£
+		 //ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ð£ï¿½é¡£
 		for (j = 0; j<cols; j++)
 		{
 			ps = M.chead[j];
-			while (ps != NULL)	//¼ÆËãËùÓÐµÃrmn0¡«rmn3µÃ³Ë»ý¡£
+			while (ps != NULL)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½rmn0ï¿½ï¿½rmn3ï¿½Ã³Ë»ï¿½ï¿½ï¿½
 			{
 				double   prod_rmn0 = 1.0;//(*(ps+symbol_in_col[i]*rows+j))
 				double   prod_rmn1 = 1.0;
@@ -8484,7 +8485,7 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 				double const1 = pn0[j] * prod_rmn0;
 				double const2 = pn1[j] * prod_rmn1;
 
-				ps->alphamn = 1 / (const1 + const2); // alphamnÎª¹éÒ»»¯²ÎÊý 
+				ps->alphamn = 1 / (const1 + const2); // alphamnÎªï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
 
 				ps->qmn0 = ps->alphamn*const1;
 				ps->qmn1 = ps->alphamn*const2;
@@ -8504,8 +8505,8 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 					}
 				}
 				//update pseudo posterior probability     
-				//°ÑÏÈÇ°Ã»³ËµÄnewh(ones_in_col(i),j).rmn0³Ë½øÈ¥
-				//------------------------------------Êä³öqmn0 qmn1 qmn2 qmn3
+				//ï¿½ï¿½ï¿½ï¿½Ç°Ã»ï¿½Ëµï¿½newh(ones_in_col(i),j).rmn0ï¿½Ë½ï¿½È¥
+				//------------------------------------ï¿½ï¿½ï¿½qmn0 qmn1 qmn2 qmn3
 
 				//-------------------------------------
 
@@ -8513,7 +8514,7 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 				double const6 = const2*(ps->rmn1);
 
 				double alpha_n = 1 / (const5 + const6);
-				ps->qn0 = alpha_n*const5; // ÇóµÃqn0ºÍqn1,qn2,qn3
+				ps->qn0 = alpha_n*const5; // ï¿½ï¿½ï¿½qn0ï¿½ï¿½qn1,qn2,qn3
 				ps->qn1 = alpha_n*const6;
 				//pn0[j] = ps->qn0;
 				//pn1[j] = ps->qn1;
@@ -8527,17 +8528,17 @@ int qcldpc::spa_decoder(int *vhat, double *channelData, int _MAXITERNO, double s
 					vhat[j] = 1;
 				else
 					vhat[j] = 0;
-				ps = ps->down; //Ö¸ÏòÏÂÒ»¸ö½áµã¡£      
+				ps = ps->down; //Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ã¡£      
 			}//end- while(qs!=NULL)
 		} // for(j=0;j<cols;j++)
 		judgeFlag = judgeZero(vhat);
 
 		if (judgeFlag)
-		{  //---Âú×ãÐ£Ñé¾ÍÍË³ö,·ñÔò·µ»Ø¼ÌÐøµü´ú¡£
+		{  //---ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ë³ï¿½,ï¿½ï¿½ï¿½ò·µ»Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			decodingflag = 1;
 			break;
 		}
-	}/*********Íê³Éµü´ú´ÎÊýµÄÒëÂë********/
+	}/*********ï¿½ï¿½Éµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 
 	 //for(int i=0; i!=cols; ++i)
 	 //{
@@ -9550,13 +9551,13 @@ void qcldpc::rearrangeXS()
 	k=i+1;
 	if(k<cols-1)
 	{
-	while(H[i*cols+k]==0)   //²»ÎªÁãÊ±ÍË³öÑ­»·
+	while(H[i*cols+k]==0)   //ï¿½ï¿½Îªï¿½ï¿½Ê±ï¿½Ë³ï¿½Ñ­ï¿½ï¿½
 	{
 	k=k+1;
 	if(k==cols-1)
 	break;
 	}
-	for(j = 0; j < ROWS; j ++)	//½»»»ÁÐÔªËØ(°ÑµÚiÁÐºÍµÚkÁÐ½»»»)
+	for(j = 0; j < ROWS; j ++)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½(ï¿½Ñµï¿½iï¿½ÐºÍµï¿½kï¿½Ð½ï¿½ï¿½ï¿½)
 	{
 	swap(H[j*cols+i],H[j*cols+k]);
 	}
@@ -9614,7 +9615,7 @@ void qcldpc::rearrangeXS()
 					if (k == cols - 1)
 						break;
 				}
-				for (j = 0; j < ROWS; j++)	//½»»»ÁÐÔªËØ(°ÑµÚiÁÐºÍµÚkÁÐ½»»»)
+				for (j = 0; j < ROWS; j++)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½(ï¿½Ñµï¿½iï¿½ÐºÍµï¿½kï¿½Ð½ï¿½ï¿½ï¿½)
 				{
 					swap(H[j*cols + i], H[j*cols + k]);
 				}
@@ -9667,7 +9668,7 @@ void qcldpc::rearrangeXS()
 			}
 			if (k != i)
 			{
-				for (j = 0; j < ROWS; j++)	//½»»»ÁÐÔªËØ(°ÑµÚiÁÐºÍµÚkÁÐ½»»»)
+				for (j = 0; j < ROWS; j++)	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½(ï¿½Ñµï¿½iï¿½ÐºÍµï¿½kï¿½Ð½ï¿½ï¿½ï¿½)
 				{
 					swap(H[j*cols + i], H[j*cols + k]);
 				}
@@ -9744,12 +9745,12 @@ void qcldpc::rearrangeXS()
 	//cout << endl;
 
 
-	/* Êä³öÁÐ½»»»µÄÐÅÏ¢
-	cout<<"½»»»:"<<endl;
+	/* ï¿½ï¿½ï¿½ï¿½Ð½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
+	cout<<"ï¿½ï¿½ï¿½ï¿½:"<<endl;
 	for(int ii=0;ii<cols;ii++)
 	cout<<rearrange[ii]<<" ";
 	cout<<endl<<endl;
-	//  rhs=m;// mÊÇ[I,D]µÄÐÎÊ½¡£DÊÇAÄæÓëBµÄ³Ë»ý
+	//  rhs=m;// mï¿½ï¿½[I,D]ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½Dï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½Bï¿½Ä³Ë»ï¿½
 	*/
 }
 void qcldpc::gen_G()
@@ -9766,7 +9767,7 @@ void qcldpc::gen_G()
 	//G[j*rows+i]=H[i*cols+j+rows];
 
 
-	//G[(j-rows)*rows+i]=H[i*cols+j+rows]; //ÕâÀï£¬DÊÇ---AµÄÄæÓëBµÄ³Ë»ý,¶øGÊÇDµÄ×ªÖÃ
+	//G[(j-rows)*rows+i]=H[i*cols+j+rows]; //ï¿½ï¿½ï¿½ï£¬Dï¿½ï¿½---Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Bï¿½Ä³Ë»ï¿½,ï¿½ï¿½Gï¿½ï¿½Dï¿½ï¿½×ªï¿½ï¿½
 	for (i = 0; i<cols - now_rows; i++)
 	{
 		for (j = 0; j<now_rows; j++)
@@ -9889,7 +9890,7 @@ int qcldpc::judgeZero(int *vs)
 			ps = ps->right;
 		}
 
-		// ´ËÊ±k4£½h(i,:)*vhat;
+		// ï¿½ï¿½Ê±k4ï¿½ï¿½h(i,:)*vhat;
 		if (sum != 0)
 		{
 			judgeFlag = 0;
@@ -10757,7 +10758,8 @@ bool ldpc::RU_PREPROCESS(int colErased, int MaxRow)
 
 
 	ldpc gH(g, g, 2);
-	gH.CreatMatrix_OL_Huang("H_g.txt");
+	char filename[] = "H_g.txt";
+gH.CreatMatrix_OL_Huang(filename);
 
 	cout << "g = " << g << endl;
 

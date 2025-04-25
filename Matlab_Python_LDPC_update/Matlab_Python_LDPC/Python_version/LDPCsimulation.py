@@ -130,8 +130,8 @@ def process_mimo_decoder(H, Y, Es, EbN0):
             out_APP_m = np.array(out_APP_m, dtype=np.double)
             hard_code = (out_APP_m < 0)
             prior = out_APP_c.tolist()
-        ForMIMO = inv_recd_seq.tolist() - prior
-        interleavedForMIMO = interleaver(channel_interleaver_pattern, ForMIMO)
+        ForMIMO = np.array(inv_recd_seq) - np.array(prior)  # Fixed subtraction
+        interleavedForMIMO = interleaver(channel_interleaver_pattern, ForMIMO).tolist()
     return hard_code   
 
 
@@ -156,12 +156,12 @@ Code_R = 0.5
 
 
 # MODELING FOR TURBO CODES
-H = [generate_complex_array(2, 2, np.sqrt(0.5)) for _ in range(641)]
+H = [generate_complex_array(2, 2, np.sqrt(0.5)) for _ in range(int(LDPC_CODELEN/4))]
 #H = [np.eye(2) for _ in range(641)]
-print('H[0]:',H[0])
+#print('H[0]:',H[0])
 
 ''' do the modeling for the turbo'''
-intlv_pattern = np.random.permutation(np.arange(0, 1282))
+#intlv_pattern = np.random.permutation(np.arange(0, 1282))
 channel_interleaver_pattern = np.random.permutation(np.arange(0, LDPC_CODELEN))
 
 import matplotlib.pyplot as plt
@@ -172,7 +172,7 @@ code = np.array(code)
 
 Intcode = interleaver(channel_interleaver_pattern, code)  # Interleaved output
 QPSKcode = qpsk_mapping(Intcode)  # BPSK Mapping: 0 → -1, 1 → +1
-snr_values = np.array([ 1, 1.5, 2, 2.5, 3, 3.5])  # SNR values in dB
+snr_values = np.array([ 1, 2, 3, 4, 5, 6])  # SNR values in dB
 BER = np.zeros(len(snr_values), dtype=float)
 for j in range(snr_values.size):
     EbN0=snr_values[j]
@@ -180,8 +180,8 @@ for j in range(snr_values.size):
 
     EsN0 = EbN0 - 10 * np.log10(Nr / (Code_R * Mt * Mc))  # in dB
     EsN0 = np.round(10 ** (EsN0 / 10), decimals=4)
-    Y = np.zeros((LDPC_CODELEN/4,2), dtype=complex)  # Initialize Y with zeros
-    for i in range(LDPC_CODELEN/4):
+    Y = np.zeros((int(LDPC_CODELEN/4),2), dtype=complex)  # Initialize Y with zeros
+    for i in range(int(LDPC_CODELEN/4)):
         Y[i] = (H[i] @ QPSKcode[2*i:2*i+2].reshape(-1,1) + generate_complex_array(2, 1, np.sqrt(sigma2))).reshape(1,2)
         Y = np.array(Y)
     Output = process_mimo_decoder(H, Y, Es, EbN0)
