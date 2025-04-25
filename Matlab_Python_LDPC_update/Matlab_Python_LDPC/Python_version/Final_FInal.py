@@ -622,6 +622,7 @@ channel_interleaver_pattern = np.random.permutation(np.arange(0, 1282*2))
 
 snr_values = np.array([ 1, 2, 3, 3.5, 4])  # SNR values in dB
 BER_Turbo = np.zeros(len(snr_values), dtype=float)
+last_tot = 0
 for j in range(snr_values.size):
     EbN0=snr_values[j]
     sigma2 = (Es / 2) * (Nr / (Code_R * Mt * Mc)) * (10 ** (-EbN0 / 10))
@@ -651,12 +652,6 @@ for j in range(snr_values.size):
             break
     last_tot = tot
     BER_Turbo[j] = bec / tot / len(u)
-    #MappedOutput = qpsk_mapping(Output)  # BPSK Mapping: 0 → -1, 1 → +1
-    #print('MappedOutput[0:10]:',MappedOutput[0:10])
-    #print('Y[0:10]:',Y[0:10])
-    #print('output.size:',Output.size)
-    #print('u.size:',u.size)
-    #Output = 2*u-1
     BER_Turbo[j] = np.sum((Output[0:length_u]>=0)!=u)/length_u
 print(f'BER: {BER_Turbo}')
 
@@ -699,6 +694,7 @@ channel_interleaver_pattern = np.random.permutation(np.arange(0, LDPC_CODELEN))
 
 snr_values = np.array([ 1, 2, 3, 3.5, 4])  # SNR values in dB
 BER_LDPC = np.zeros(len(snr_values), dtype=float)
+last_tot_LDPC = 0
 for j in range(snr_values.size):
     EbN0=snr_values[j]
     sigma2 = (Es / 2) * (Nr / (Code_R * Mt * Mc)) * (10 ** (-EbN0 / 10))
