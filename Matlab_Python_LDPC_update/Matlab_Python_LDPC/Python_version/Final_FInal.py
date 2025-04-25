@@ -652,7 +652,7 @@ for j in range(snr_values.size):
             break
     last_tot = tot
     BER_Turbo[j] = bec / tot / len(u)
-    BER_Turbo[j] = np.sum((Output[0:length_u]>=0)!=u)/length_u
+
 print(f'BER: {BER_Turbo}')
 
 # Plot BER vs SNR
