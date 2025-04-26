@@ -244,7 +244,7 @@ def process_mimo_decoder_LDPC(H, Y, Es, EbN0):
             out_APP_c = np.array(out_APP_c, dtype=np.double)
             out_APP_m = pbe.ldpc_Ext(address, out_APP_c.tolist())
             out_APP_m = np.array(out_APP_m, dtype=np.double)
-            hard_code = (out_APP_m < 0)
+            hard_code = (out_APP_c < 0)
             prior = out_APP_c.tolist()
         ForMIMO = np.array(inv_recd_seq, dtype=np.double) - out_APP_c  # Fixed subtraction
         interleavedForMIMO = interleaver(channel_interleaver_pattern, ForMIMO).tolist()
@@ -719,7 +719,7 @@ for j in range(snr_values.size):
             Y[i] = (H[i] @ QPSKcode[2*i:2*i+2].reshape(-1,1) + generate_complex_array(2, 1, np.sqrt(sigma2))).reshape(1,2)
             Y = np.array(Y)
         Output = process_mimo_decoder_LDPC(H, Y, Es, EbN0)
-        bit_err = sum(abs(Output-u))
+        bit_err = sum(abs(Output-code))
         bec = bec + bit_err
         tot = tot + 1
         print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
@@ -728,7 +728,7 @@ for j in range(snr_values.size):
             break
     
     if (tot > 0):
-        BER_LDPC[j] = bec / tot / len(u)
+        BER_LDPC[j] = bec / tot / len(code)
         last_tot_LDPC = tot
 print(f'BER_LDPC: {BER_LDPC}')
 #print('BER_Turbo:', BER_Turbo)
