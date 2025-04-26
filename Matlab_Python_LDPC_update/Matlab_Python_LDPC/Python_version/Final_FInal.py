@@ -243,7 +243,7 @@ def process_mimo_decoder_LDPC(H, Y, Es, EbN0):
         inv_recd_seq = - received_seq
         #scaled_inv_recd_seq = inv_recd_seq * (2 / np.sqrt(sigma2))
         prior = inv_recd_seq.tolist()
-        for inner_iter in range(100):
+        for inner_iter in range(1):
             out_APP_c = pbe.ldpc_decoder(address, prior, LDPC_CODELEN)
             out_APP_c = np.array(out_APP_c, dtype=np.double)
             out_APP_m = pbe.ldpc_Ext(address, out_APP_c.tolist())
