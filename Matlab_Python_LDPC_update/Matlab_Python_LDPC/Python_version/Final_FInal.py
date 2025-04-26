@@ -236,12 +236,12 @@ def process_mimo_decoder_LDPC(H, Y, Es, EbN0):
         deinterleavedLd = de_interleaver(channel_interleaver_pattern, Ld)
         deinterleavedLe = de_interleaver(channel_interleaver_pattern, Le)
 
-        print('expected_std', (2 / np.sqrt(sigma2)))
-        print('InterleavedForMIMO_std:', np.std(deinterleavedLe))
+        #print('expected_std', (2 / np.sqrt(sigma2)))
+        #print('InterleavedForMIMO_std:', np.std(deinterleavedLe))
 
         received_seq = deinterleavedLe
         inv_recd_seq = - received_seq
-        scaled_inv_recd_seq = inv_recd_seq * 0.519 #(2 / np.sqrt(sigma2))
+        scaled_inv_recd_seq = inv_recd_seq * (2 / np.sqrt(sigma2))
         prior = scaled_inv_recd_seq.tolist()
         for inner_iter in range(100):
             out_APP_c = pbe.ldpc_decoder(address, prior, LDPC_CODELEN)
