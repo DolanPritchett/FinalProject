@@ -246,7 +246,7 @@ def process_mimo_decoder_LDPC(H, Y, Es, EbN0):
             out_APP_m = np.array(out_APP_m, dtype=np.double)
             hard_code = (out_APP_m < 0)
             prior = out_APP_m.tolist()
-        ForMIMO = np.array(inv_recd_seq, dtype=np.double) - np.array(prior, dtype=np.double)  # Fixed subtraction
+        ForMIMO = np.array(inv_recd_seq, dtype=np.double) - out_APP_c  # Fixed subtraction
         interleavedForMIMO = interleaver(channel_interleaver_pattern, ForMIMO).tolist()
     return hard_code   
 
