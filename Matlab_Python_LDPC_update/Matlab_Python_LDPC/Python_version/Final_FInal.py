@@ -620,7 +620,7 @@ channel_interleaver_pattern = np.random.permutation(np.arange(0, 1282*2))
 
 
 
-snr_values = np.array([ 1, 2, 2.5, 3, 3.5, 4])  # SNR values in dB
+snr_values = np.array([0, 1, 2, 2.5, 3, 3.5, 4])  # SNR values in dB
 BER_Turbo = np.zeros(len(snr_values), dtype=float)
 last_tot = 0
 for j in range(snr_values.size):
@@ -632,7 +632,7 @@ for j in range(snr_values.size):
     length_u = 1280
     bec = 0
     tot = 0
-    while(bec < 5 and tot < 1000 and last_tot < 15):
+    while(((bec < 5 and tot < 1000) or (tot < 10)) and (last_tot < 45)):
         Y = np.zeros((641,2), dtype=complex) 
         u = np.random.randint(0, 2, length_u)
         v75 = encoder75(u)  # Encoder output
@@ -648,12 +648,12 @@ for j in range(snr_values.size):
         bec = bec + bit_err
         tot = tot + 1
         print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
-        if (bit_err==0 and tot==1000):
+        if (tot==50):
             break
-    last_tot = tot
+    
     if (tot > 0):
         BER_Turbo[j] = bec / tot / len(u)
-
+        last_tot = tot
 print(f'BER: {BER_Turbo}')
 
 # Plot BER vs SNR
@@ -693,7 +693,7 @@ channel_interleaver_pattern = np.random.permutation(np.arange(0, LDPC_CODELEN))
 
 
 
-snr_values = np.array([ 1, 2, 2.5, 3, 3.5, 4])  # SNR values in dB
+snr_values = np.array([0, 1, 2, 2.5, 3, 3.5, 4])  # SNR values in dB
 BER_LDPC = np.zeros(len(snr_values), dtype=float)
 last_tot_LDPC = 0
 for j in range(snr_values.size):
@@ -705,7 +705,7 @@ for j in range(snr_values.size):
     length_u = LDPC_INFOLEN
     bec = 0
     tot = 0
-    while(bec < 5 and tot < 1000 and last_tot_LDPC < 15):
+    while(((bec < 5 and tot < 1000) or (tot < 10)) and (last_tot_LDPC < 45)):
 
         u = np.random.randint(0, 2, length_u)
         code = pbe.ldpc_encoder(address, u, LDPC_INFOLEN, LDPC_CODELEN)
@@ -722,11 +722,12 @@ for j in range(snr_values.size):
         bec = bec + bit_err
         tot = tot + 1
         print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
-        if (bit_err==0 and tot==1000):
+        if (tot==50):
             break
-    last_tot_LDPC = tot
+    
     if (tot > 0):
         BER_LDPC[j] = bec / tot / len(u)
+        last_tot_LDPC = tot
 print(f'BER_LDPC: {BER_LDPC}')
 print('BER_Turbo:', BER_Turbo)
 
