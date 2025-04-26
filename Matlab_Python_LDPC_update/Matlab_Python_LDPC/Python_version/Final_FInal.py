@@ -651,7 +651,8 @@ for j in range(snr_values.size):
         if (bit_err==0 and tot==1000):
             break
     last_tot = tot
-    BER_Turbo[j] = bec / tot / len(u)
+    if (tot > 0):
+        BER_Turbo[j] = bec / tot / len(u)
 
 print(f'BER: {BER_Turbo}')
 
@@ -724,7 +725,8 @@ for j in range(snr_values.size):
         if (bit_err==0 and tot==1000):
             break
     last_tot_LDPC = tot
-    BER_LDPC[j] = bec / tot / len(u)
+    if (tot > 0):
+        BER_LDPC[j] = bec / tot / len(u)
 print(f'BER_LDPC: {BER_LDPC}')
 print('BER_Turbo:', BER_Turbo)
 
