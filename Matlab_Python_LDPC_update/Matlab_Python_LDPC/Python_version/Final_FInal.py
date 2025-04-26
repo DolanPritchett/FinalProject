@@ -623,7 +623,7 @@ intlv_pattern = np.random.permutation(np.arange(0, 1282))
 channel_interleaver_pattern = np.random.permutation(np.arange(0, 1282*2))
 
 
-""""
+
 
 snr_values = np.array([0, 1, 2, 2.5, 3, 3.5, 4])  # SNR values in dB
 BER_Turbo = np.zeros(len(snr_values), dtype=float)
@@ -637,7 +637,7 @@ for j in range(snr_values.size):
     length_u = 1280
     bec = 0
     tot = 0
-    while(((bec < 5 and tot < 1000) or (tot < 10)) and (last_tot < 45)):
+    while(((bec < 5 and tot < 1000) or (tot < 20)) and (last_tot < 45)):
         Y = np.zeros((641,2), dtype=complex) 
         u = np.random.randint(0, 2, length_u)
         v75 = encoder75(u)  # Encoder output
@@ -663,7 +663,7 @@ for j in range(snr_values.size):
 print(f'BER: {BER_Turbo}')
 
 # Plot BER vs SNR
-"""
+
 
 #LDPC Code SImulation
 
@@ -699,7 +699,7 @@ channel_interleaver_pattern = np.random.permutation(np.arange(0, LDPC_CODELEN))
 
 
 
-snr_values = np.array([0, 1])#, 2, 2.5, 3, 3.5, 4])  # SNR values in dB
+snr_values = np.array([0, 1, 2, 2.5, 3, 3.5, 4])  # SNR values in dB
 BER_LDPC = np.zeros(len(snr_values), dtype=float)
 last_tot_LDPC = 0
 for j in range(snr_values.size):
@@ -711,7 +711,7 @@ for j in range(snr_values.size):
     length_u = LDPC_INFOLEN
     bec = 0
     tot = 0
-    while(((bec < 5 and tot < 1000) or (tot < 10)) and (last_tot_LDPC < 45)):
+    while(((bec < 5 and tot < 1000) or (tot < 20)) and (last_tot_LDPC < 45)):
 
         u = np.random.randint(0, 2, length_u)
         code = pbe.ldpc_encoder(address, u, LDPC_INFOLEN, LDPC_CODELEN)
