@@ -241,8 +241,8 @@ def process_mimo_decoder_LDPC(H, Y, Es, EbN0):
 
         received_seq = deinterleavedLe
         inv_recd_seq = - received_seq
-        scaled_inv_recd_seq = inv_recd_seq * (2 / np.sqrt(sigma2))
-        prior = scaled_inv_recd_seq.tolist()
+        #scaled_inv_recd_seq = inv_recd_seq * (2 / np.sqrt(sigma2))
+        prior = inv_recd_seq.tolist()
         for inner_iter in range(100):
             out_APP_c = pbe.ldpc_decoder(address, prior, LDPC_CODELEN)
             out_APP_c = np.array(out_APP_c, dtype=np.double)
@@ -722,7 +722,7 @@ for j in range(snr_values.size):
         QPSKcode = qpsk_mapping(Intcode)  # BPSK Mapping: 0 → -1, 1 → +1
         Y = np.zeros((int(LDPC_CODELEN/4),2), dtype=complex)  # Initialize Y with zeros
         for i in range(int(LDPC_CODELEN/4)):
-            Y[i] = (H[i] @ QPSKcode[2*i:2*i+2].reshape(-1,1) + generate_complex_array(2, 1, np.sqrt(sigma2))).reshape(1,2)
+            Y[i] = (H[i] @ QPSKcode[2*i:2*i+2].reshape(-1,1) + generate_complex_array(2, 1, np.sqrt(sigma2/2))).reshape(1,2)
             Y = np.array(Y)
         Output = process_mimo_decoder_LDPC(H, Y, Es, EbN0)
         bit_err = sum(abs(Output-u))
