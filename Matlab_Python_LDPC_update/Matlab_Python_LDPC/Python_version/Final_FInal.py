@@ -648,6 +648,7 @@ for j in range(snr_values.size):
         bec = bec + bit_err
         tot = tot + 1
         print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
+        print('BER_Turbo:', BER_Turbo)
         if (tot==50):
             break
     
@@ -722,6 +723,7 @@ for j in range(snr_values.size):
         bec = bec + bit_err
         tot = tot + 1
         print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
+        print('BER_LDPC:', BER_LDPC)
         if (tot==50):
             break
     
