@@ -245,8 +245,8 @@ def process_mimo_decoder_LDPC(H, Y, Es, EbN0):
             out_APP_m = pbe.ldpc_Ext(address, out_APP_c.tolist())
             out_APP_m = np.array(out_APP_m, dtype=np.double)
             hard_code = (out_APP_m < 0)
-            prior = out_APP_c.tolist()
-        ForMIMO = np.array(inv_recd_seq) - np.array(prior)  # Fixed subtraction
+            prior = out_APP_m.tolist()
+        ForMIMO = np.array(inv_recd_seq, dtype=np.double) - np.array(prior, dtype=np.double)  # Fixed subtraction
         interleavedForMIMO = interleaver(channel_interleaver_pattern, ForMIMO).tolist()
     return hard_code   
 
@@ -618,7 +618,7 @@ intlv_pattern = np.random.permutation(np.arange(0, 1282))
 channel_interleaver_pattern = np.random.permutation(np.arange(0, 1282*2))
 
 
-
+""""
 
 snr_values = np.array([0, 1, 2, 2.5, 3, 3.5, 4])  # SNR values in dB
 BER_Turbo = np.zeros(len(snr_values), dtype=float)
@@ -658,7 +658,7 @@ for j in range(snr_values.size):
 print(f'BER: {BER_Turbo}')
 
 # Plot BER vs SNR
-
+"""
 
 #LDPC Code SImulation
 
@@ -731,11 +731,11 @@ for j in range(snr_values.size):
         BER_LDPC[j] = bec / tot / len(u)
         last_tot_LDPC = tot
 print(f'BER_LDPC: {BER_LDPC}')
-print('BER_Turbo:', BER_Turbo)
+#print('BER_Turbo:', BER_Turbo)
 
 plt.figure(figsize=(10, 6))
 plt.plot(snr_values, BER_LDPC, marker='o', label='BER LDPC', color='blue')
-plt.plot(snr_values, BER_Turbo, marker='s', label='BER Turbo', color='red')
+#plt.plot(snr_values, BER_Turbo, marker='s', label='BER Turbo', color='red')
 
 plt.yscale('log')  # Set y-axis to logarithmic scale
 plt.xlabel('SNR (dB)', fontsize=14)
