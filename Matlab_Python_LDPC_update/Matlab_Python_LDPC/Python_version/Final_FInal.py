@@ -249,6 +249,8 @@ def process_mimo_decoder_LDPC(H, Y, Es, EbN0):
         ForMIMO = -np.array(inv_recd_seq, dtype=np.double) + out_APP_c  # Fixed subtraction
         invertedForMIMO = -ForMIMO
         interleavedForMIMO = interleaver(channel_interleaver_pattern, invertedForMIMO).tolist()
+        print('expected_std', (2 / np.sqrt(sigma2)))
+        print('InterleavedForMIMO_std:', np.std(interleavedForMIMO))
     return hard_code   
 
 def process_mimo_decoder(H, Y, Es, EbN0):
