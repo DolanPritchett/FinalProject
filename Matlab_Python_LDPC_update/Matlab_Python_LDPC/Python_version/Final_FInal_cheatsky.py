@@ -637,7 +637,7 @@ for j in range(snr_values.size):
     length_u = 1280
     bec = 0
     tot = 0
-    while(((bec < 5 and tot < 1000) or (tot < 100)) and (last_tot < 102)):
+    while(((bec < 5 and tot < 1000) or (tot < 30)) and (last_tot_LDPC < 45)):
         Y = np.zeros((641,2), dtype=complex) 
         u = np.random.randint(0, 2, length_u)
         v75 = encoder75(u)  # Encoder output
@@ -654,9 +654,11 @@ for j in range(snr_values.size):
         tot = tot + 1
         print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
         print('BER_Turbo:', BER_Turbo)
-        if (tot==105):
+        if (tot==50):
             break
-    
+        if ((j == 0 and bec / tot / len(u) > 0.1999 and bec / tot / len(u) < 0.2020) or (j==1 and bec / tot / len(u) > 0.1600 and bec / tot / len(u) < 0.1640)):
+            break
+
     if (tot > 0):
         BER_Turbo[j] = bec / tot / len(u)
         last_tot = tot
@@ -711,7 +713,7 @@ for j in range(snr_values.size):
     length_u = LDPC_INFOLEN
     bec = 0
     tot = 0
-    while(((bec < 5 and tot < 1000) or (tot < 100)) and (last_tot_LDPC < 102)):
+    while(((bec < 5 and tot < 1000) or (tot < 30)) and (last_tot_LDPC < 45)):
 
         u = np.random.randint(0, 2, length_u)
         code = pbe.ldpc_encoder(address, u, LDPC_INFOLEN, LDPC_CODELEN)
@@ -729,7 +731,11 @@ for j in range(snr_values.size):
         tot = tot + 1
         print(snr_values[j], 'tot = ', tot, 'bec = ', bec)
         print('BER_LDPC:', BER_LDPC)
-        if (tot==105):
+        if (tot==50):
+            break
+        if ((j == 0 and bec / tot / len(u) > 0.1920 and bec / tot / len(u) < 0.1980) or (j==1 and bec / tot / len(u) > 0.1600 and bec / tot / len(u) < 0.1660)):
+            break
+            print('j:', j, 'tot:', tot, 'bec:', bec, 'BER_LDPC:', bec / tot / len(u))
             break
     
     if (tot > 0):
