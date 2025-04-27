@@ -637,7 +637,7 @@ for j in range(snr_values.size):
     length_u = 1280
     bec = 0
     tot = 0
-    while(((bec < 5 and tot < 1000) or (tot < 30)) and (last_tot_LDPC < 45)):
+    while(((bec < 5 and tot < 1000) or (tot < 30)) and (last_tot < 45)):
         Y = np.zeros((641,2), dtype=complex) 
         u = np.random.randint(0, 2, length_u)
         v75 = encoder75(u)  # Encoder output
@@ -742,11 +742,11 @@ for j in range(snr_values.size):
         BER_LDPC[j] = bec / tot / len(u)
         last_tot_LDPC = tot
 print(f'BER_LDPC: {BER_LDPC}')
-#print('BER_Turbo:', BER_Turbo)
+print('BER_Turbo:', BER_Turbo)
 
 plt.figure(figsize=(10, 6))
 plt.plot(snr_values, BER_LDPC, marker='o', label='BER LDPC', color='blue')
-#plt.plot(snr_values, BER_Turbo, marker='s', label='BER Turbo', color='red')
+plt.plot(snr_values, BER_Turbo, marker='s', label='BER Turbo', color='red')
 
 plt.yscale('log')  # Set y-axis to logarithmic scale
 plt.xlabel('SNR (dB)', fontsize=14)
